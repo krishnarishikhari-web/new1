@@ -3680,27 +3680,11 @@ function formatBillPeriodLabel(startStr, endStr){
   return `${formatDateDisplay(startStr)} – ${formatDateDisplay(endStr)}`;
 }
 
-function buildInvoiceHTML(b){
-  const c = state.company;
-  const qrImg = upiQrImage(b.amount, 'Bill '+b.billNo, 170);
-  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown : [{ magazineName:'Delivery charges', qty:'—', value:Number(b.deliveryAmount||0) }];
-  const totalQty = breakdown.reduce((sum,row)=> sum + (Number(row.qty)||0), 0);
-  const rowsHTML = breakdown.map((row,idx)=>`
-        <tr>
-          <td class="c-sno">${idx+1}</td>
-          <td>${esc(row.magazineName)}</td>
-          <td class="c-num">${row.qty}</td>
-          <td class="c-num">₹${Number(row.value||0).toFixed(2)}</td>
-        </tr>`).join('');
-  const addressLines = [b.doorNo ? `${esc(b.doorNo)}, `:'' , esc(b.address1||''), esc(b.address2||''), esc(b.subAreaName||''), esc(b.areaName||''), b.pincode?esc(b.pincode):''].filter(Boolean).join(', ');
-
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bill ${esc(b.billNo)}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
+function invoiceStyleBlock(){
+  return `
     *{box-sizing:border-box;}
-    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; color:#1B2333; max-width:640px; margin:36px auto; padding:0 16px; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
-    .bill-box{border:1px solid #DFE5EF; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(11,33,72,0.06);}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; color:#1B2333; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    .bill-box{border:1px solid #DFE5EF; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(11,33,72,0.06); max-width:640px; margin:0 auto; background:#fff;}
     .inv-topbar{height:6px; background:linear-gradient(90deg,#0B2148,#2A5DC7);}
     .inv-body{padding:30px 32px 26px;}
     .inv-head{text-align:center; border-bottom:2px solid #0B2148; padding-bottom:14px; margin-bottom:18px;}
@@ -3714,6 +3698,7 @@ function buildInvoiceHTML(b){
     .inv-fields .field{margin-bottom:6px;}
     .inv-fields .field b{color:#0B2148; font-weight:700;}
     .inv-fields .badge{display:inline-block; background:#0B2148; color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.1em; padding:4px 10px; border-radius:3px; margin-bottom:8px;}
+    .tag-badge{display:inline-block; background:#0B2148; color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:4px 10px; border-radius:3px;}
     table{width:100%; border-collapse:collapse; margin-bottom:18px; border:1px solid #DFE5EF; border-radius:8px; overflow:hidden;}
     th,td{padding:10px 10px; font-size:13px; text-align:left;}
     th{background:#0B2148; color:#fff; font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; font-weight:600;}
@@ -3723,18 +3708,33 @@ function buildInvoiceHTML(b){
     .c-num{text-align:right; white-space:nowrap;}
     tbody td{border-bottom:1px solid #E7ECF4;}
     tfoot td{border-top:2px solid #0B2148; font-weight:800; font-size:14px; color:#0B2148; padding-top:12px;}
-    .inv-qr{display:flex; align-items:center; gap:16px; margin:0 0 20px; padding:14px 16px; background:#F1F5FB; border:1px dashed #B9CBEA; border-radius:8px;}
-    .inv-qr p{font-size:12.5px; color:#3A4356; margin:0; line-height:1.5;}
+    .inv-qr{display:flex; align-items:center; gap:20px; margin:0 0 20px; padding:16px 18px; background:#F1F5FB; border:1px dashed #B9CBEA; border-radius:8px;}
+    .inv-qr p{font-size:12.5px; color:#3A4356; margin:0; line-height:1.6;}
+    .upi-id-highlight{display:inline-block; background:#FFF3C4; color:#7A5300; font-weight:800; letter-spacing:.01em; padding:3px 10px; border-radius:5px; margin:3px 0; font-size:13.5px;}
     .inv-foot-row{display:flex; justify-content:space-between; align-items:flex-end; margin-top:34px;}
-    .inv-mobile{font-size:12.5px; color:#3A4356;}
+    .inv-mobile{font-size:12.5px; color:#3A4356; display:flex; align-items:center; gap:8px;}
     .inv-mobile b{color:#0B2148;}
     .inv-sign{text-align:center; font-size:12.5px; color:#3A4356;}
-    .inv-sign .for-line{margin:0 0 40px; font-size:12.5px; color:#647087;}
-    .inv-sign .sig-line{border-top:1px solid #C9D3E3; padding-top:7px; font-size:12px; color:#647087;}
+    .inv-sign .sig-line{border-top:1px solid #C9D3E3; margin-top:40px; padding-top:7px; font-size:12px; color:#647087; white-space:nowrap;}
     .inv-thanks{font-size:11.5px; color:#93A0B5; margin-top:22px; text-align:center; letter-spacing:.02em;}
-    @media print{ .no-print{display:none;} body{margin:12px auto;} .bill-box{box-shadow:none;} }
-  </style>
-  </head><body>
+  `;
+}
+
+function buildInvoiceBodyHTML(b){
+  const c = state.company;
+  const qrImg = upiQrImage(b.amount, 'Bill '+b.billNo, 220);
+  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown : [{ magazineName:'Delivery charges', qty:'—', value:Number(b.deliveryAmount||0) }];
+  const totalQty = breakdown.reduce((sum,row)=> sum + (Number(row.qty)||0), 0);
+  const rowsHTML = breakdown.map((row,idx)=>`
+        <tr>
+          <td class="c-sno">${idx+1}</td>
+          <td>${esc(row.magazineName)}</td>
+          <td class="c-num">${row.qty}</td>
+          <td class="c-num">₹${Number(row.value||0).toFixed(2)}</td>
+        </tr>`).join('');
+  const addressLines = [b.doorNo ? `${esc(b.doorNo)}, `:'' , esc(b.address1||''), esc(b.address2||''), esc(b.subAreaName||''), esc(b.areaName||''), b.pincode?esc(b.pincode):''].filter(Boolean).join(', ');
+
+  return `
     <div class="bill-box">
     <div class="inv-topbar"></div>
     <div class="inv-body">
@@ -3763,17 +3763,29 @@ function buildInvoiceHTML(b){
     </table>
     ${Number(b.openBalance||0)!==0 ? `<p style="font-size:12.5px; color:#3A4356; margin:0 0 8px;">Balance brought forward: <b style="color:#0B2148;">₹${Number(b.openBalance).toFixed(2)}</b></p>` : ''}
     <p style="font-size:15px; font-weight:800; color:#0B2148; margin:0 0 20px;">Total Payable: ₹${Math.round(b.amount)}</p>
-    ${qrImg ? `<div class="inv-qr"><img src="${qrImg}" width="110" height="110" alt="UPI QR" onerror="this.parentElement.style.display='none'"><p><b style="display:block; color:#0B2148; margin-bottom:3px;">Scan to pay via UPI</b>${esc(c.upi)}<br>Amount: ₹${Math.round(b.amount)}</p></div>` : ''}
+    ${qrImg ? `<div class="inv-qr"><img src="${qrImg}" width="150" height="150" alt="UPI QR" onerror="this.parentElement.style.display='none'"><p><span class="tag-badge" style="margin-bottom:8px; display:inline-block;">Pay via UPI</span><br><span class="upi-id-highlight">${esc(c.upi)}</span><br>Amount: ₹${Math.round(b.amount)}</p></div>` : ''}
     <div class="inv-foot-row">
-      <div class="inv-mobile">Mobile: <b>${esc(c.phone||'—')}</b></div>
+      <div class="inv-mobile"><span class="tag-badge">Mobile</span> <b>${esc(c.phone||'—')}</b></div>
       <div class="inv-sign">
-        <p class="for-line">For ${esc(c.name||'The Distribution Ledger')}</p>
-        <p class="sig-line">Authorized Signature</p>
+        <p class="sig-line">Authorized Sign(${esc(c.name||'The Distribution Ledger')})</p>
       </div>
     </div>
     <p class="inv-thanks">Thank you for your subscription.</p>
     </div>
-    </div>
+    </div>`;
+}
+
+function buildInvoiceHTML(b){
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bill ${esc(b.billNo)}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    ${invoiceStyleBlock()}
+    body{max-width:640px; margin:36px auto; padding:0 16px;}
+    @media print{ .no-print{display:none;} body{margin:12px auto;} .bill-box{box-shadow:none;} }
+  </style>
+  </head><body>
+    ${buildInvoiceBodyHTML(b)}
     <div class="no-print" style="text-align:center; margin-top:20px;">
       <button onclick="window.print()" style="padding:9px 22px; cursor:pointer; background:#0B2148; color:#fff; border:none; border-radius:5px; font-family:'Inter',sans-serif; font-weight:600; font-size:13px;">Print</button>
     </div>
@@ -3786,6 +3798,165 @@ function openInvoice(billNo){
   const w = window.open('', '_blank');
   if(!w){ showToast('Please allow pop-ups to view the bill.', 'error'); return; }
   w.document.write(buildInvoiceHTML(b));
+  w.document.close();
+}
+
+function buildInvoiceBodyCompactHTML(b){
+  const c = state.company;
+  const qrImg = upiQrImage(b.amount, 'Bill '+b.billNo, 160);
+  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown : [{ magazineName:'Delivery charges', qty:'—', value:Number(b.deliveryAmount||0) }];
+  const totalQty = breakdown.reduce((sum,row)=> sum + (Number(row.qty)||0), 0);
+  const rowsHTML = breakdown.map(row=>`
+        <tr>
+          <td>${esc(row.magazineName)}</td>
+          <td class="c-num">${row.qty}</td>
+          <td class="c-num">₹${Number(row.value||0).toFixed(2)}</td>
+        </tr>`).join('');
+  const addressLines = [b.doorNo ? `${esc(b.doorNo)}, `:'' , esc(b.address1||''), esc(b.subAreaName||''), esc(b.areaName||'')].filter(Boolean).join(', ');
+
+  return `
+    <div class="compact-bill">
+      <div class="cb-topbar"></div>
+      <div class="cb-head">
+        <h1>${esc(c.name||'The Distribution Ledger')}</h1>
+        <p>${esc(c.address||'')}</p>
+        <p>${esc(c.phone||'')}${c.gst?' · GSTIN: '+esc(c.gst):''}</p>
+      </div>
+      <div class="cb-meta">
+        <div class="cb-party">
+          <div class="name">${esc(b.partyName)} <span class="code">(${esc(b.partyCode)})</span></div>
+          ${addressLines ? `<div class="addr">${addressLines}</div>` : ''}
+        </div>
+        <div class="cb-fields">
+          <div class="badge">BILL No. ${esc(b.billNo)}</div>
+          <div>${esc(formatBillPeriodLabel(b.periodStart, b.periodEnd))}</div>
+          <div>Date: ${formatDateDisplay(b.date)}</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Magazine</th><th class="c-num">Qty</th><th class="c-num">Value</th></tr></thead>
+        <tbody>${rowsHTML}</tbody>
+        <tfoot><tr><td>Total</td><td class="c-num">${totalQty}</td><td class="c-num">₹${Number(b.deliveryAmount||0).toFixed(2)}</td></tr></tfoot>
+      </table>
+      ${Number(b.openBalance||0)!==0 ? `<div class="cb-note">Balance b/f: ₹${Number(b.openBalance).toFixed(2)}</div>` : ''}
+      <div class="cb-total">Total Payable: ₹${Math.round(b.amount)}</div>
+      <div class="cb-foot">
+        <div class="cb-pay">
+          ${qrImg ? `<img src="${qrImg}" class="cb-qr" alt="UPI QR" onerror="this.style.display='none'">` : ''}
+          <div class="cb-pay-info">
+            ${c.upi ? `<div class="cb-upi-label badge-chip">Pay via UPI</div><div class="cb-upi">${esc(c.upi)}</div>` : ''}
+            <div class="cb-mobile"><span class="badge-chip">Mobile</span> <b>${esc(c.phone||'—')}</b></div>
+          </div>
+        </div>
+        <div class="cb-sign">
+          <div class="sig-line">Authorized Sign(${esc(c.name||'The Distribution Ledger')})</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildBillsPrintHTML(bills){
+  const PER_PAGE = 3;
+  const groups = [];
+  for(let i=0;i<bills.length;i+=PER_PAGE) groups.push(bills.slice(i,i+PER_PAGE));
+
+  const pages = groups.map((group,pIdx)=>{
+    let slotsHtml = '';
+    for(let s=0;s<PER_PAGE;s++){
+      if(s>0) slotsHtml += `<div class="cut-line"><span>✂ cut here</span></div>`;
+      const b = group[s];
+      slotsHtml += b ? `<div class="bill-slot">${buildInvoiceBodyCompactHTML(b)}</div>` : `<div class="bill-slot bill-slot-empty"></div>`;
+    }
+    return `
+    <div class="print-page">
+      <div class="page-tag no-print">Page ${pIdx+1} of ${groups.length}</div>
+      ${slotsHtml}
+    </div>`;
+  }).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Print Bills (${bills.length})</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; color:#1B2333; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    html,body{background:#DCE3EE; margin:0; padding:0;}
+    .preview-toolbar{position:sticky; top:0; z-index:10; background:#0B2148; color:#fff; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; font-family:'Inter',sans-serif; box-shadow:0 2px 8px rgba(0,0,0,.15);}
+    .preview-toolbar .ptitle{font-size:14px; font-weight:700;}
+    .preview-toolbar .psub{font-size:12px; color:#B9CBEA; font-weight:400; margin-top:2px;}
+    .preview-toolbar button{padding:9px 20px; cursor:pointer; background:#fff; color:#0B2148; border:none; border-radius:5px; font-family:'Inter',sans-serif; font-weight:700; font-size:13px;}
+    .preview-toolbar button.secondary{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); font-weight:600;}
+
+    /* A5 page: 148mm x 210mm, holds 3 compact bills stacked with cut guides between */
+    .print-page{width:148mm; height:210mm; margin:22px auto; padding:5mm 7mm; background:#fff; box-shadow:0 2px 10px rgba(11,33,72,.15); box-sizing:border-box; display:flex; flex-direction:column; position:relative;}
+    .page-tag{position:absolute; top:-18px; left:0; right:0; text-align:center; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#647087;}
+    .bill-slot{flex:1 1 0; min-height:0; overflow:hidden;}
+    .bill-slot-empty{border:0.4mm dashed #D4DBE7; border-radius:1.5mm;}
+    .cut-line{border-top:0.35mm dashed #9AA7BD; position:relative; margin:1.6mm 0; height:0; flex:0 0 auto;}
+    .cut-line span{position:absolute; top:-2.2mm; left:50%; transform:translateX(-50%); background:#fff; padding:0 2mm; font-size:6.5px; letter-spacing:.08em; text-transform:uppercase; color:#9AA7BD;}
+
+    .compact-bill{width:100%; height:100%; background:#fff; padding:2.8mm 4mm 2.4mm; box-sizing:border-box; border:0.25mm solid #DFE5EF; border-radius:1.5mm; display:flex; flex-direction:column; overflow:hidden;}
+    .compact-bill .cb-topbar{height:0.9mm; background:linear-gradient(90deg,#0B2148,#2A5DC7); margin:-2.8mm -4mm 1.6mm; border-radius:1.5mm 1.5mm 0 0;}
+    .compact-bill .cb-head{text-align:center; border-bottom:0.3mm solid #0B2148; padding-bottom:1mm; margin-bottom:1.4mm;}
+    .compact-bill .cb-head h1{font-size:3.2mm; margin:0 0 0.3mm; color:#0B2148; font-weight:800;}
+    .compact-bill .cb-head p{margin:0; font-size:1.9mm; color:#647087; line-height:1.3;}
+    .compact-bill .cb-meta{display:flex; justify-content:space-between; gap:3mm; margin-bottom:1.4mm;}
+    .compact-bill .cb-party .name{font-size:2.6mm; font-weight:700; color:#1B2333;}
+    .compact-bill .cb-party .code{font-size:2mm; font-weight:400; color:#647087;}
+    .compact-bill .cb-party .addr{font-size:1.9mm; color:#3A4356; margin-top:0.5mm; max-width:62mm; line-height:1.25;}
+    .compact-bill .cb-fields{text-align:right; font-size:1.9mm; color:#3A4356; white-space:nowrap;}
+    .compact-bill .cb-fields div{margin-bottom:0.4mm;}
+    .compact-bill .cb-fields .badge{display:inline-block; background:#0B2148; color:#fff; font-size:1.9mm; font-weight:700; padding:0.5mm 1.6mm; border-radius:1mm; margin-bottom:0.8mm;}
+    .compact-bill .badge-chip{display:inline-block; background:#0B2148; color:#fff; font-size:1.6mm; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:0.4mm 1.4mm; border-radius:0.8mm;}
+    .compact-bill table{width:100%; border-collapse:collapse; margin-bottom:1.1mm; font-size:2mm;}
+    .compact-bill th,.compact-bill td{padding:0.8mm 1.2mm; text-align:left;}
+    .compact-bill th{background:#0B2148; color:#fff; font-size:1.7mm; text-transform:uppercase; font-weight:600;}
+    .compact-bill td.c-num, .compact-bill th.c-num{text-align:right;}
+    .compact-bill tbody td{border-bottom:0.2mm solid #E7ECF4;}
+    .compact-bill tfoot td{border-top:0.3mm solid #0B2148; font-weight:800; font-size:2.1mm; color:#0B2148;}
+    .compact-bill .cb-note{font-size:1.9mm; color:#3A4356; margin-bottom:0.8mm;}
+    .compact-bill .cb-total{font-size:2.7mm; font-weight:800; color:#0B2148; margin:0.4mm 0 1.4mm; text-align:right;}
+    .compact-bill .cb-foot{display:flex; justify-content:space-between; align-items:center; margin-top:auto; gap:2.5mm;}
+    .compact-bill .cb-pay{display:flex; align-items:center; gap:2mm;}
+    .compact-bill .cb-qr{width:15mm; height:15mm; flex-shrink:0;}
+    .compact-bill .cb-pay-info{display:flex; flex-direction:column; gap:0.3mm;}
+    .compact-bill .cb-upi-label{margin-bottom:0.4mm;}
+    .compact-bill .cb-upi{display:inline-block; width:fit-content; background:#FFF3C4; color:#7A5300; font-weight:800; font-size:2mm; padding:0.5mm 1.6mm; border-radius:1mm; margin:0.3mm 0;}
+    .compact-bill .cb-mobile{font-size:1.9mm; color:#3A4356; margin-top:0.5mm; display:flex; align-items:center; gap:1.2mm;}
+    .compact-bill .cb-sign{text-align:center; font-size:1.6mm; color:#647087; max-width:32mm;}
+    .compact-bill .cb-sign .sig-line{border-top:0.25mm solid #C9D3E3; padding-top:0.6mm; margin-top:3mm; line-height:1.3;}
+
+    @media print{
+      @page{ size:A5; margin:0; }
+      .no-print, .preview-toolbar, .page-tag{display:none !important;}
+      html,body{background:#fff;}
+      .print-page{width:148mm; height:210mm; margin:0; box-shadow:none; page-break-after:always; break-after:page;}
+      .print-page:last-child{page-break-after:auto; break-after:auto;}
+    }
+  </style>
+  </head><body>
+    <div class="preview-toolbar no-print">
+      <div>
+        <div class="ptitle">Print Preview — A5, 3 bills per page</div>
+        <div class="psub">${bills.length} bill${bills.length===1?'':'s'} across ${groups.length} A5 page${groups.length===1?'':'s'} · dashed lines mark where to cut</div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="secondary" onclick="window.close()">Close</button>
+        <button onclick="window.print()">🖨 Print All</button>
+      </div>
+    </div>
+    ${pages}
+  </body></html>`;
+}
+
+function printSelectedBills(){
+  const sel = state.billUI.selected || [];
+  if(sel.length===0){ showToast('Select at least one bill using the checkboxes first.', 'error'); return; }
+  const bills = sel.map(billNo=> state.bills.find(x=>x.billNo===billNo)).filter(Boolean);
+  if(bills.length===0) return;
+  const w = window.open('', '_blank');
+  if(!w){ showToast('Please allow pop-ups to print the bills.', 'error'); return; }
+  w.document.write(buildBillsPrintHTML(bills));
   w.document.close();
 }
 
@@ -3864,6 +4035,7 @@ function billStatusHTML(){
     <div class="module-header">
       <h1 class="module-title">Bill Status</h1>
       <div style="display:flex; gap:10px;">
+        <button class="btn btn-ghost" onclick="printSelectedBills()">🖨 Print Selected</button>
         <button class="btn btn-ghost" onclick="sendSelectedBillsWhatsApp()">📲 Send WhatsApp to Selected</button>
         <button class="btn btn-ghost" onclick="backToBillEntry()">← Back to Sales Bill</button>
       </div>
