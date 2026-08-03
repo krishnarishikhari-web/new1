@@ -21,6 +21,8 @@
     --text-muted:#647087;
     --success:#1F8A5F;
     --danger:#C0392B;
+    --amber:#E08A2B;
+    --amber-light:#FBE6CC;
     --rule:#DFE5EF;
     --rule-dark:rgba(255,255,255,0.10);
     --font-display: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -496,7 +498,8 @@
     padding:14px 16px;
   }
   .kpi-card.c-blue{border-left-color:#3B7DDB;}
-  .kpi-card.c-orange{border-left-color:var(--brass);}
+  .kpi-card.c-orange{border-left-color:var(--amber);}
+  .kpi-card.c-orange .icon{color:var(--amber);}
   .kpi-card.c-green{border-left-color:var(--success);}
   .kpi-card.c-red{border-left-color:var(--danger);}
   .kpi-card-head{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
@@ -519,7 +522,7 @@
   .bar-row{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
   .bar-label{width:150px; font-size:12px; color:var(--text-muted); flex-shrink:0;}
   .bar-track{flex:1; background:#E3E9F3; border-radius:3px; height:10px; overflow:hidden;}
-  .bar-fill{height:100%; background:linear-gradient(90deg,#3B7DDB,var(--brass)); border-radius:3px;}
+  .bar-fill{height:100%; background:linear-gradient(90deg,#8FB8F0,var(--ink-2)); border-radius:3px;}
   .bar-val{width:28px; text-align:right; font-family:var(--font-mono); font-size:11.5px; color:var(--text);}
   .activity-item{display:flex; gap:10px; padding:10px 0; border-bottom:1px solid var(--rule);}
   .activity-item:last-child{border-bottom:none;}
@@ -583,7 +586,22 @@
   table.skeleton-table td{padding:16px 18px; border:1px solid var(--rule); vertical-align:middle;}
   table.skeleton-table tbody tr:hover td{background:var(--brass-light);}
 
-  /* Pagination bar under data tables */
+  /* Bill Collection — compact fields row + full-width, generously spaced bills table */
+  .coll-fields-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--rule);}
+  .coll-fields-row .old-style-row{margin-bottom:0; flex-direction:column; align-items:flex-start; gap:6px;}
+  .coll-fields-row .old-style-row label{width:auto; font-size:11px; text-transform:uppercase; letter-spacing:.05em; font-weight:600; color:var(--text-muted);}
+  .coll-fields-row .old-style-row select, .coll-fields-row .old-style-row input{width:100%;}
+  @media(max-width:900px){ .coll-fields-row{grid-template-columns:1fr;} }
+  table.coll-bills-table td, table.coll-bills-table th{padding:18px 22px;}
+  table.coll-bills-table .coll-check{width:44px; text-align:center; padding-left:22px;}
+  table.coll-bills-table input[type="checkbox"]{width:17px; height:17px; cursor:pointer;}
+  .coll-total-bar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 22px; margin-top:-1px; background:var(--brass-light);
+    border:1px solid var(--rule); border-top:none; border-radius:0 0 8px 8px;
+    font-size:13.5px; color:var(--text);
+  }
+  .coll-total-bar b{color:var(--ink); font-size:16px;}
   .pagination-bar{
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
     padding:12px 18px; border:1px solid var(--rule); border-top:none;
@@ -669,6 +687,63 @@
     .dateline{display:none;}
     .content{padding:20px 16px 50px;}
   }
+
+  /* ---------- Shared small quantity input (dedupes repeated inline styles) ---------- */
+  .qty-input{width:70px; padding:8px; border:1px solid var(--rule); border-radius:3px; font-size:13px; background:#F7FAFD; color:var(--text); text-align:center;}
+  .qty-input:focus{outline:none; border-color:var(--brass); box-shadow:0 0 0 3px rgba(42,93,199,0.15);}
+
+  /* ---------- Inline field errors (replaces alert() for validation) ---------- */
+  .field-error-text{
+    display:none; color:var(--danger); font-size:11px; margin-top:5px; line-height:1.4;
+  }
+  .field-error-text.show{display:block;}
+  .old-style-row.has-error input, .old-style-row.has-error select,
+  .field.has-error input, .field.has-error select{
+    border-color:var(--danger) !important;
+    box-shadow:0 0 0 3px rgba(192,57,43,0.12) !important;
+  }
+  .old-style-row.has-error{align-items:flex-start; flex-wrap:wrap;}
+  .old-style-row.has-error .field-error-text{width:100%; margin-left:130px;}
+  @media(max-width:480px){ .old-style-row.has-error .field-error-text{margin-left:0;} }
+
+  /* ---------- Toast notifications (replaces alert() for success/info) ---------- */
+  #toastStack{
+    position:fixed; top:18px; right:18px; z-index:500;
+    display:flex; flex-direction:column; gap:10px;
+    max-width:340px;
+  }
+  .toast{
+    display:flex; align-items:flex-start; gap:10px;
+    background:var(--ink); color:#fff;
+    border-radius:6px; padding:13px 16px;
+    box-shadow:0 12px 28px -8px rgba(0,0,0,0.35);
+    font-size:13px; line-height:1.4;
+    border-left:4px solid var(--success);
+    animation:toastIn .22s ease;
+  }
+  .toast.error{border-left-color:var(--danger);}
+  .toast.info{border-left-color:var(--brass);}
+  .toast .toast-ic{flex-shrink:0; margin-top:1px;}
+  .toast .toast-msg{flex:1;}
+  .toast .toast-close{
+    background:none; border:none; color:#AEBEDA; cursor:pointer; font-size:15px; line-height:1; padding:0 0 0 4px; flex-shrink:0;
+  }
+  .toast.leaving{animation:toastOut .18s ease forwards;}
+  @keyframes toastIn{from{opacity:0; transform:translateX(24px);}to{opacity:1; transform:translateX(0);}}
+  @keyframes toastOut{from{opacity:1; transform:translateX(0);}to{opacity:0; transform:translateX(24px);}}
+
+  /* ---------- Visible keyboard focus states ---------- */
+  button:focus-visible, .btn:focus-visible, .icon-btn:focus-visible, .row-action-btn:focus-visible,
+  .page-btn:focus-visible, .nav-item:focus-visible, .nav-single:focus-visible,
+  .report-tile:focus-visible, .menu-toggle:focus-visible, a:focus-visible{
+    outline:2px solid var(--brass); outline-offset:2px; border-radius:4px;
+  }
+
+  /* ---------- Nice-to-haves: hover lift + sticky table header ---------- */
+  .card{transition:box-shadow .15s ease, transform .15s ease;}
+  .kpi-card{transition:box-shadow .15s ease, transform .15s ease;}
+  .kpi-card:hover, .card:hover{box-shadow:0 6px 18px -8px rgba(11,33,72,0.18); transform:translateY(-1px);}
+  table.skeleton-table th{position:sticky; top:0; z-index:2;}
 </style>
 </head>
 <body>
@@ -785,14 +860,14 @@
   <div class="main-col">
     <div class="topbar">
       <div class="topbar-left">
-        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <button class="menu-toggle" aria-label="Toggle navigation menu" onclick="toggleSidebar()">☰</button>
         <h2 class="masthead-name" id="topCompanyName">The Distribution Ledger</h2>
         <span class="dateline" id="topDateline"></span>
       </div>
       <div class="topbar-right">
-        <button class="icon-btn" title="Company Profile" onclick="openCompanyEditor()">🏢</button>
-        <button class="icon-btn" title="Search" onclick="navigateTo('search')">🔎</button>
-        <button class="icon-btn" title="Backup" onclick="navigateTo('backup')">💾</button>
+        <button class="icon-btn" title="Company Profile" aria-label="Open Company Profile" onclick="openCompanyEditor()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/></svg></button>
+        <button class="icon-btn" title="Search" aria-label="Search" onclick="navigateTo('search')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+        <button class="icon-btn" title="Backup" aria-label="Backup and Restore" onclick="navigateTo('backup')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
       </div>
     </div>
     <div class="content" id="content"></div>
@@ -808,6 +883,9 @@
     <button class="btn btn-brass" onclick="restartApp()">Return to Login</button>
   </div>
 </div>
+
+<!-- ============ TOASTS ============ -->
+<div id="toastStack" aria-live="polite" aria-atomic="true"></div>
 
 <!-- ============ MODAL ============ -->
 <div class="modal-backdrop" id="modalBackdrop">
@@ -1312,7 +1390,7 @@ function dashboardHTML(){
         ${despatchBars}
       </div>
       <div class="card">
-        <h3 class="panel-title" style="border-bottom:1px solid var(--rule); padding-bottom:10px; margin-bottom:14px;">⚡ Quick Actions</h3>
+        <h3 class="panel-title" style="border-bottom:1px solid var(--rule); padding-bottom:10px; margin-bottom:14px;">${iconSvg('bolt')} Quick Actions</h3>
         <div class="qa-grid">
           <button class="btn btn-brass" onclick="quickNewSupplier()">+ New Supplier</button>
           <button class="btn btn-brass" onclick="quickNewMagazine()">+ New Magazine</button>
@@ -1434,6 +1512,82 @@ function esc(v){
   return (v===undefined||v===null) ? '' : String(v)
     .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+
+/* ============================================================
+   MONEY FORMATTING — standardize on ₹ everywhere money is shown
+   ============================================================ */
+function fmtMoney(n){
+  const num = Number(n||0);
+  return '₹' + num.toFixed(2);
+}
+
+/* ============================================================
+   TOASTS — replaces alert() for success / info messages
+   ============================================================ */
+let toastSeq = 0;
+function showToast(message, type){
+  type = type || 'success';
+  const stack = document.getElementById('toastStack');
+  if(!stack){ return; }
+  const id = 'toast-' + (++toastSeq);
+  const icon = type==='error' ? '⚠' : (type==='info' ? 'ℹ' : '✓');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.id = id;
+  el.setAttribute('role','status');
+  el.innerHTML = `<span class="toast-ic">${icon}</span><span class="toast-msg">${esc(message)}</span><button class="toast-close" aria-label="Dismiss notification" onclick="dismissToast('${id}')">✕</button>`;
+  stack.appendChild(el);
+  setTimeout(()=>dismissToast(id), 4200);
+}
+function dismissToast(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.add('leaving');
+  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 180);
+}
+
+/* ============================================================
+   INLINE FIELD ERRORS — replaces alert() for validation messages
+   Usage: fieldError('someInputId', 'This field is required') to show,
+          clearFieldErrors('formScopeId') to clear all within a scope.
+   ============================================================ */
+function fieldError(inputId, message){
+  const input = document.getElementById(inputId);
+  if(!input){ showToast(message, 'error'); return false; }
+  const row = input.closest('.old-style-row') || input.closest('.field') || input.parentElement;
+  row.classList.add('has-error');
+  let msgEl = row.querySelector('.field-error-text');
+  if(!msgEl){
+    msgEl = document.createElement('div');
+    msgEl.className = 'field-error-text';
+    row.appendChild(msgEl);
+  }
+  msgEl.textContent = message;
+  msgEl.classList.add('show');
+  input.focus();
+  return false;
+}
+function clearFieldErrors(scopeId){
+  const scope = scopeId ? document.getElementById(scopeId) : document;
+  if(!scope) return;
+  scope.querySelectorAll('.has-error').forEach(el=>el.classList.remove('has-error'));
+  scope.querySelectorAll('.field-error-text').forEach(el=>{ el.classList.remove('show'); el.textContent=''; });
+}
+
+/* ============================================================
+   SHARED SVG ICONS — replaces casual emoji with a consistent icon set
+   ============================================================ */
+const ICONS = {
+  save: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>',
+  search: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>',
+  backup: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+  building: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/></svg>',
+  edit: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  power: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>',
+  bolt: '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-3px;"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>'
+};
+function iconSvg(name){ return ICONS[name] || ''; }
+
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function blankItemDraft(){ return { magazineCode:'', magazineName:'', salesState:'YES', qty:{sun:0,mon:0,tue:0,wed:0,thu:0,fri:0,sat:0} }; }
 function blankHoldDraft(){ return { startDate: todayISO(), endDate: todayISO(), reason:'' }; }
@@ -1442,8 +1596,9 @@ let holdDraft = null;
 function updateHoldDraft(field,value){ if(holdDraft) holdDraft[field]=value; }
 
 function addHoldToList(){
-  if(!holdDraft.startDate || !holdDraft.endDate){ alert('Please set both a Hold From and Hold To date.'); return; }
-  if(holdDraft.endDate < holdDraft.startDate){ alert('Hold To date cannot be before Hold From date.'); return; }
+  clearFieldErrors();
+  if(!holdDraft.startDate || !holdDraft.endDate){ return fieldError('holdFromInput','Please set both a Hold From and Hold To date.'); }
+  if(holdDraft.endDate < holdDraft.startDate){ return fieldError('holdToInput','Hold To date cannot be before Hold From date.'); }
   if(!subDraft.holds){ subDraft.holds = []; }
   subDraft.holds.push({ id:'HLD-'+Date.now(), startDate:holdDraft.startDate, endDate:holdDraft.endDate, reason:holdDraft.reason });
   holdDraft = blankHoldDraft();
@@ -1583,7 +1738,8 @@ function handleMagazineChange(code){
 }
 
 function addItemToList(){
-  if(!itemDraft.magazineCode){ alert('Please select a Magazine Name first.'); return; }
+  clearFieldErrors();
+  if(!itemDraft.magazineCode){ return fieldError('subItemMagSelect','Please select a Magazine Name first.'); }
   const idx = subDraft.items.findIndex(it=>it.magazineCode===itemDraft.magazineCode);
   if(idx>=0){ subDraft.items[idx] = JSON.parse(JSON.stringify(itemDraft)); }
   else{ subDraft.items.push(JSON.parse(JSON.stringify(itemDraft))); }
@@ -1597,8 +1753,9 @@ function removeItemFromList(magCode){
 }
 
 function saveSubscriber(){
-  if(!subDraft.partyName || !subDraft.partyName.trim()){ alert('Party Name is required.'); return; }
-  if(!subDraft.areaCode){ alert('Please select an Area Code.'); return; }
+  clearFieldErrors();
+  if(!subDraft.partyName || !subDraft.partyName.trim()){ return fieldError('subPartyNameInput','Party Name is required.'); }
+  if(!subDraft.areaCode){ return fieldError('subAreaCodeSelect','Please select an Area Code.'); }
   if(subDraft.id){
     const idx = state.subscribers.findIndex(s=>s.id===subDraft.id);
     state.subscribers[idx] = JSON.parse(JSON.stringify(subDraft));
@@ -1606,6 +1763,7 @@ function saveSubscriber(){
     subDraft.id = subDraft.partyCode;
     state.subscribers.push(JSON.parse(JSON.stringify(subDraft)));
   }
+  showToast(`Subscriber "${subDraft.partyName}" saved.`);
   closeSubscriberForm();
 }
 
@@ -1641,7 +1799,7 @@ function subscriberFormHTML(){
       <td>${esc(it.magazineName)}</td>
       <td>${it.salesState==='YES' ? 'Yes':'No'}</td>
       <td style="text-align:center;">${total}/wk</td>
-      <td style="text-align:right;">${ro ? '' : `<button class="icon-btn" title="Remove" onclick="removeItemFromList('${it.magazineCode}')">✕</button>`}</td>
+      <td style="text-align:right;">${ro ? '' : `<button class="icon-btn" title="Remove" aria-label="Remove magazine from list" onclick="removeItemFromList('${it.magazineCode}')">✕</button>`}</td>
     </tr>`;
   }).join('') : `<tr><td colspan="5"><div class="empty-note" style="padding:18px;"><b>No magazines added yet</b>Select a magazine on the right and click “Add Item”.</div></td></tr>`;
 
@@ -1650,7 +1808,7 @@ function subscriberFormHTML(){
       <td>${formatDateDisplay(h.startDate)}</td>
       <td>${formatDateDisplay(h.endDate)}</td>
       <td>${esc(h.reason)||'—'}</td>
-      <td style="text-align:right;">${ro ? '' : `<button class="icon-btn" title="Remove" onclick="removeHoldFromList('${h.id}')">✕</button>`}</td>
+      <td style="text-align:right;">${ro ? '' : `<button class="icon-btn" title="Remove" aria-label="Remove hold period" onclick="removeHoldFromList('${h.id}')">✕</button>`}</td>
     </tr>`).join('') : `<tr><td colspan="4"><div class="empty-note" style="padding:18px;"><b>No hold periods</b>Copies are delivered on every scheduled day. Add a Hold From/To date below to skip a range (e.g. a customer's travel dates).</div></td></tr>`;
 
   return `
@@ -1662,8 +1820,8 @@ function subscriberFormHTML(){
         <h3 class="panel-title">Details</h3>
         <div class="old-style-row"><label>Entry Date</label><input type="date" value="${esc(d.entryDate)}" ${dis} oninput="updateDraft('entryDate',this.value)"></div>
         <div class="old-style-row"><label>Party Code</label><input type="text" value="${esc(d.partyCode)}" ${dis || (d.id?'disabled':'')} oninput="updateDraft('partyCode',this.value)"></div>
-        <div class="old-style-row"><label>Party Name</label><input type="text" value="${esc(d.partyName)}" placeholder="Subscriber full name" ${dis} oninput="updateDraft('partyName',this.value)"></div>
-        <div class="old-style-row"><label>Area Code</label><select ${dis} onchange="handleAreaChange(this.value)"><option value="">Select area…</option>${areaOptions}</select></div>
+        <div class="old-style-row"><label>Party Name</label><input type="text" id="subPartyNameInput" value="${esc(d.partyName)}" placeholder="Subscriber full name" ${dis} oninput="updateDraft('partyName',this.value)"></div>
+        <div class="old-style-row"><label>Area Code</label><select id="subAreaCodeSelect" ${dis} onchange="handleAreaChange(this.value)"><option value="">Select area…</option>${areaOptions}</select></div>
         <div class="old-style-row"><label>Area Name</label><input type="text" value="${esc(d.areaName)}" disabled></div>
         <div class="old-style-row"><label>Sub Area Name</label><select ${dis} onchange="updateDraft('subAreaName',this.value)"><option value="">Select sub-area…</option>${subAreaOptions}</select></div>
         <div class="old-style-row"><label>Active State</label><select ${dis} onchange="updateDraft('activeState',this.value)">
@@ -1688,7 +1846,7 @@ function subscriberFormHTML(){
       <div class="card">
         <h3 class="panel-title">Item List</h3>
         ${ro ? '' : `
-        <div class="old-style-row"><label>Magazine Name</label><select onchange="handleMagazineChange(this.value)"><option value="">Select magazine…</option>${magOptions}</select></div>
+        <div class="old-style-row"><label>Magazine Name</label><select id="subItemMagSelect" onchange="handleMagazineChange(this.value)"><option value="">Select magazine…</option>${magOptions}</select></div>
         <div class="old-style-row"><label>Magazine Code</label><input type="text" value="${esc(itemDraft.magazineCode)}" disabled></div>
         <div class="old-style-row"><label>Sales State</label><select onchange="updateItemDraft('salesState',this.value)">
           <option value="YES" ${itemDraft.salesState==='YES'?'selected':''}>YES</option>
@@ -1715,8 +1873,8 @@ function subscriberFormHTML(){
         <h3 class="panel-title">Hold / Resume Periods</h3>
         <p style="font-size:11.5px; color:var(--text-muted); margin:-4px 0 12px;">Use this when a customer stops copies for a stretch and resumes later (e.g. travel, temporary cancellation). Sales Posting, Despatch Chart and Sales Bill will all skip these dates automatically.</p>
         ${ro ? '' : `
-        <div class="old-style-row"><label>Hold From</label><input type="date" value="${esc(holdDraft.startDate)}" oninput="updateHoldDraft('startDate',this.value)"></div>
-        <div class="old-style-row"><label>Hold To</label><input type="date" value="${esc(holdDraft.endDate)}" oninput="updateHoldDraft('endDate',this.value)"></div>
+        <div class="old-style-row"><label>Hold From</label><input type="date" id="holdFromInput" value="${esc(holdDraft.startDate)}" oninput="updateHoldDraft('startDate',this.value)"></div>
+        <div class="old-style-row"><label>Hold To</label><input type="date" id="holdToInput" value="${esc(holdDraft.endDate)}" oninput="updateHoldDraft('endDate',this.value)"></div>
         <div class="old-style-row"><label>Reason</label><input type="text" value="${esc(holdDraft.reason)}" placeholder="Optional — e.g. Travel" oninput="updateHoldDraft('reason',this.value)"></div>
         <div style="display:flex; gap:8px; margin:14px 0 4px;">
           <button class="btn btn-brass" onclick="addHoldToList()">+ Add Hold Period</button>
@@ -1733,11 +1891,11 @@ function subscriberFormHTML(){
     <div class="form-actions" style="margin-top:20px;">
       ${ro ? `
         <button class="btn btn-ghost" onclick="closeSubscriberForm()">← Back to List</button>
-        <button class="btn btn-brass" onclick="openSubscriberForm('${d.id}')">✏️ Edit</button>
+        <button class="btn btn-brass" onclick="openSubscriberForm('${d.id}')">${iconSvg('edit')} Edit</button>
       ` : `
         <button class="btn btn-ghost" onclick="closeSubscriberForm()">Cancel</button>
         ${d.id ? `<button class="btn btn-ghost" style="border-color:var(--danger); color:var(--danger);" onclick="confirmDeleteSubscriber('${d.id}')">Delete</button>` : ''}
-        <button class="btn btn-brass" onclick="saveSubscriber()">💾 Save Subscriber</button>
+        <button class="btn btn-brass" onclick="saveSubscriber()">${iconSvg('save')} Save Subscriber</button>
       `}
     </div>
   `;
@@ -1810,7 +1968,7 @@ function renderMagazineTableBody(){
       <td>${esc(m.name)}</td>
       <td>${esc(m.magType)}</td>
       <td>${esc(m.supplyStatus)}</td>
-      <td>${Number(m.commission||0).toFixed(2)}</td>
+      <td>${fmtMoney(m.commission||0)}</td>
       <td>${m.rounded==='Yes' ? '✓ Yes' : 'No'}</td>
       <td>${stats.purchased}</td>
       <td>${stats.sold}</td>
@@ -1854,17 +2012,19 @@ function updateMagDraftNum(field,value){ if(magDraft) magDraft[field]= value==='
 function updateMagRate(day,value){ if(magDraft) magDraft.rates[day] = value===''?0:Number(value); }
 
 function saveMagazine(){
-  if(!magDraft.name || !magDraft.name.trim()){ alert('Magazine Name is required.'); return; }
-  if(!magDraft.code || !magDraft.code.trim()){ alert('Magazine Code is required.'); return; }
+  clearFieldErrors();
+  if(!magDraft.name || !magDraft.name.trim()){ return fieldError('magNameInput','Magazine Name is required.'); }
+  if(!magDraft.code || !magDraft.code.trim()){ return fieldError('magCodeInput','Magazine Code is required.'); }
   const isNew = !state.magUI.editingId;
   const dupIdx = state.masters.magazines.findIndex(m=>m.code===magDraft.code);
-  if(isNew && dupIdx>=0){ alert('This Magazine Code already exists.'); return; }
+  if(isNew && dupIdx>=0){ return fieldError('magCodeInput','This Magazine Code already exists.'); }
   if(isNew){
     state.masters.magazines.push(JSON.parse(JSON.stringify(magDraft)));
   } else {
     const idx = state.masters.magazines.findIndex(m=>m.code===state.magUI.editingId);
     state.masters.magazines[idx] = JSON.parse(JSON.stringify(magDraft));
   }
+  showToast(`Magazine "${magDraft.name}" saved.`);
   closeMagazineForm();
 }
 
@@ -1904,8 +2064,8 @@ function magazineFormHTML(){
       <div class="card">
         <h3 class="panel-title">Details</h3>
         <div class="old-style-row"><label>Magazine Type</label><select ${dis} onchange="updateMagDraft('magType',this.value)">${typeOptions}</select></div>
-        <div class="old-style-row"><label>Magazine Code</label><input type="text" value="${esc(d.code)}" ${dis || (!isNew?'disabled':'')} oninput="updateMagDraft('code',this.value)"></div>
-        <div class="old-style-row"><label>Magazine Name</label><input type="text" value="${esc(d.name)}" placeholder="Magazine full name" ${dis} oninput="updateMagDraft('name',this.value)"></div>
+        <div class="old-style-row"><label>Magazine Code</label><input type="text" id="magCodeInput" value="${esc(d.code)}" ${dis || (!isNew?'disabled':'')} oninput="updateMagDraft('code',this.value)"></div>
+        <div class="old-style-row"><label>Magazine Name</label><input type="text" id="magNameInput" value="${esc(d.name)}" placeholder="Magazine full name" ${dis} oninput="updateMagDraft('name',this.value)"></div>
         <div class="old-style-row"><label>Short Name 1</label><input type="text" value="${esc(d.shortName1)}" ${dis} oninput="updateMagDraft('shortName1',this.value)"></div>
         <div class="old-style-row"><label>Short Name 2</label><input type="text" value="${esc(d.shortName2)}" ${dis} oninput="updateMagDraft('shortName2',this.value)"></div>
         <div class="old-style-row"><label>Supply Status</label><select ${dis} onchange="updateMagDraft('supplyStatus',this.value)">${supplyOptions}</select></div>
@@ -1933,11 +2093,11 @@ function magazineFormHTML(){
     <div class="form-actions" style="margin-top:20px;">
       ${ro ? `
         <button class="btn btn-ghost" onclick="closeMagazineForm()">← Back to List</button>
-        <button class="btn btn-brass" onclick="openMagazineForm('${d.code}')">✏️ Edit</button>
+        <button class="btn btn-brass" onclick="openMagazineForm('${d.code}')">${iconSvg('edit')} Edit</button>
       ` : `
         <button class="btn btn-ghost" onclick="closeMagazineForm()">Cancel</button>
         ${!isNew ? `<button class="btn btn-ghost" style="border-color:var(--danger); color:var(--danger);" onclick="confirmDeleteMagazine('${d.code}')">Delete</button>` : ''}
-        <button class="btn btn-brass" onclick="saveMagazine()">💾 Save Magazine</button>
+        <button class="btn btn-brass" onclick="saveMagazine()">${iconSvg('save')} Save Magazine</button>
       `}
     </div>
   `;
@@ -2060,9 +2220,10 @@ function updateAreaDraft(field,value){ if(areaDraft) areaDraft[field]=value; }
 function updateSubAreaNameDraft(value){ subAreaNameDraft=value; }
 
 function addSubAreaToList(){
+  clearFieldErrors();
   const name = (subAreaNameDraft||'').trim();
-  if(!name){ alert('Please type a Sub Area Name first.'); return; }
-  if(areaDraft.subAreas.includes(name)){ alert('This Sub Area Name is already in the list.'); return; }
+  if(!name){ return fieldError('subAreaNameInput','Please type a Sub Area Name first.'); }
+  if(areaDraft.subAreas.includes(name)){ return fieldError('subAreaNameInput','This Sub Area Name is already in the list.'); }
   areaDraft.subAreas.push(name);
   subAreaNameDraft='';
   renderAreaModule();
@@ -2074,17 +2235,19 @@ function removeSubAreaFromList(name){
 }
 
 function saveArea(){
-  if(!areaDraft.name || !areaDraft.name.trim()){ alert('Area Name is required.'); return; }
-  if(!areaDraft.code || !areaDraft.code.trim()){ alert('Area Code is required.'); return; }
+  clearFieldErrors();
+  if(!areaDraft.name || !areaDraft.name.trim()){ return fieldError('areaNameInput','Area Name is required.'); }
+  if(!areaDraft.code || !areaDraft.code.trim()){ return fieldError('areaCodeInput','Area Code is required.'); }
   const isNew = !state.areaUI.editingId;
   const dupIdx = state.masters.areas.findIndex(a=>a.code===areaDraft.code);
-  if(isNew && dupIdx>=0){ alert('This Area Code already exists.'); return; }
+  if(isNew && dupIdx>=0){ return fieldError('areaCodeInput','This Area Code already exists.'); }
   if(isNew){
     state.masters.areas.push(JSON.parse(JSON.stringify(areaDraft)));
   } else {
     const idx = state.masters.areas.findIndex(a=>a.code===state.areaUI.editingId);
     state.masters.areas[idx] = JSON.parse(JSON.stringify(areaDraft));
   }
+  showToast(`Area "${areaDraft.name}" saved.`);
   closeAreaForm();
 }
 
@@ -2107,7 +2270,7 @@ function areaFormHTML(){
   const subAreaRows = d.subAreas.length ? d.subAreas.map(sa=>`
     <tr>
       <td>${esc(sa)}</td>
-      <td style="text-align:right;">${ro ? '' : `<button class="icon-btn" title="Remove" onclick="removeSubAreaFromList('${esc(sa)}')">✕</button>`}</td>
+      <td style="text-align:right;">${ro ? '' : `<button class="icon-btn" title="Remove" aria-label="Remove sub area" onclick="removeSubAreaFromList('${esc(sa)}')">✕</button>`}</td>
     </tr>
   `).join('') : `<tr><td colspan="2"><div class="empty-note" style="padding:18px;"><b>No sub areas added yet</b>Type a name on the right and click "Add Sub Area".</div></td></tr>`;
 
@@ -2118,15 +2281,15 @@ function areaFormHTML(){
     <div class="sub-form-grid">
       <div class="card">
         <h3 class="panel-title">Details</h3>
-        <div class="old-style-row"><label>Area Code</label><input type="text" value="${esc(d.code)}" ${dis || (!isNew?'disabled':'')} oninput="updateAreaDraft('code',this.value)"></div>
-        <div class="old-style-row"><label>Area Name</label><input type="text" value="${esc(d.name)}" placeholder="Area name" ${dis} oninput="updateAreaDraft('name',this.value)"></div>
+        <div class="old-style-row"><label>Area Code</label><input type="text" id="areaCodeInput" value="${esc(d.code)}" ${dis || (!isNew?'disabled':'')} oninput="updateAreaDraft('code',this.value)"></div>
+        <div class="old-style-row"><label>Area Name</label><input type="text" id="areaNameInput" value="${esc(d.name)}" placeholder="Area name" ${dis} oninput="updateAreaDraft('name',this.value)"></div>
         <div class="old-style-row"><label>Pincode</label><input type="text" value="${esc(d.pincode)}" ${dis} oninput="updateAreaDraft('pincode',this.value)"></div>
       </div>
 
       <div class="card">
         <h3 class="panel-title">Sub Area List</h3>
         ${ro ? '' : `
-        <div class="old-style-row"><label>Sub Area Name</label><input type="text" value="${esc(subAreaNameDraft)}" placeholder="e.g. Main Bazaar" oninput="updateSubAreaNameDraft(this.value)"></div>
+        <div class="old-style-row"><label>Sub Area Name</label><input type="text" id="subAreaNameInput" value="${esc(subAreaNameDraft)}" placeholder="e.g. Main Bazaar" oninput="updateSubAreaNameDraft(this.value)"></div>
         <div style="display:flex; gap:8px; margin:14px 0 4px;">
           <button class="btn btn-brass" onclick="addSubAreaToList()">+ Add Sub Area</button>
         </div>
@@ -2142,11 +2305,11 @@ function areaFormHTML(){
     <div class="form-actions" style="margin-top:20px;">
       ${ro ? `
         <button class="btn btn-ghost" onclick="closeAreaForm()">← Back to List</button>
-        <button class="btn btn-brass" onclick="openAreaForm('${d.code}')">✏️ Edit</button>
+        <button class="btn btn-brass" onclick="openAreaForm('${d.code}')">${iconSvg('edit')} Edit</button>
       ` : `
         <button class="btn btn-ghost" onclick="closeAreaForm()">Cancel</button>
         ${!isNew ? `<button class="btn btn-ghost" style="border-color:var(--danger); color:var(--danger);" onclick="confirmDeleteArea('${d.code}')">Delete</button>` : ''}
-        <button class="btn btn-brass" onclick="saveArea()">💾 Save Area</button>
+        <button class="btn btn-brass" onclick="saveArea()">${iconSvg('save')} Save Area</button>
       `}
     </div>
   `;
@@ -2266,9 +2429,10 @@ function handleSupMagazineChange(code){
 }
 
 function addSupItemToList(){
-  if(!supItemDraft.magazineCode){ alert('Please select a Magazine first.'); return; }
+  clearFieldErrors();
+  if(!supItemDraft.magazineCode){ return fieldError('supMagSelect','Please select a Magazine first.'); }
   const exists = supDraft.items.some(it=>it.magazineCode===supItemDraft.magazineCode);
-  if(exists){ alert('This magazine is already in the list.'); return; }
+  if(exists){ return fieldError('supMagSelect','This magazine is already in the list.'); }
   supDraft.items.push(JSON.parse(JSON.stringify(supItemDraft)));
   supItemDraft = blankSupItemDraft();
   renderSupplierModule();
@@ -2280,17 +2444,19 @@ function removeSupItemFromList(magCode){
 }
 
 function saveSupplier(){
-  if(!supDraft.name || !supDraft.name.trim()){ alert('Supplier Name is required.'); return; }
-  if(!supDraft.code || !supDraft.code.trim()){ alert('Supplier Code is required.'); return; }
+  clearFieldErrors();
+  if(!supDraft.name || !supDraft.name.trim()){ return fieldError('supNameInput','Supplier Name is required.'); }
+  if(!supDraft.code || !supDraft.code.trim()){ return fieldError('supCodeInput','Supplier Code is required.'); }
   const isNew = !state.supUI.editingId;
   const dupIdx = state.masters.suppliers.findIndex(s=>s.code===supDraft.code);
-  if(isNew && dupIdx>=0){ alert('This Supplier Code already exists.'); return; }
+  if(isNew && dupIdx>=0){ return fieldError('supCodeInput','This Supplier Code already exists.'); }
   if(isNew){
     state.masters.suppliers.push(JSON.parse(JSON.stringify(supDraft)));
   } else {
     const idx = state.masters.suppliers.findIndex(s=>s.code===state.supUI.editingId);
     state.masters.suppliers[idx] = JSON.parse(JSON.stringify(supDraft));
   }
+  showToast(`Supplier "${supDraft.name}" saved.`);
   closeSupplierForm();
 }
 
@@ -2317,7 +2483,7 @@ function supplierFormHTML(){
     <tr>
       <td style="font-family:var(--font-mono);">${esc(it.magazineCode)}</td>
       <td>${esc(it.magazineName)}</td>
-      <td style="text-align:right;">${ro ? '' : `<button class="icon-btn" title="Remove" onclick="removeSupItemFromList('${it.magazineCode}')">✕</button>`}</td>
+      <td style="text-align:right;">${ro ? '' : `<button class="icon-btn" title="Remove" aria-label="Remove magazine from supplier list" onclick="removeSupItemFromList('${it.magazineCode}')">✕</button>`}</td>
     </tr>
   `).join('') : `<tr><td colspan="3"><div class="empty-note" style="padding:18px;"><b>No magazines added yet</b>Select a magazine on the right and click "Add Item".</div></td></tr>`;
 
@@ -2329,8 +2495,8 @@ function supplierFormHTML(){
       <div class="card">
         <h3 class="panel-title">Details</h3>
         <div class="old-style-row"><label>Entry Date</label><input type="date" value="${esc(d.entryDate)}" ${dis} oninput="updateSupDraft('entryDate',this.value)"></div>
-        <div class="old-style-row"><label>Supplier Code</label><input type="text" value="${esc(d.code)}" ${dis || (!isNew?'disabled':'')} oninput="updateSupDraft('code',this.value)"></div>
-        <div class="old-style-row"><label>Supplier Name</label><input type="text" value="${esc(d.name)}" placeholder="Supplier full name" ${dis} oninput="updateSupDraft('name',this.value)"></div>
+        <div class="old-style-row"><label>Supplier Code</label><input type="text" id="supCodeInput" value="${esc(d.code)}" ${dis || (!isNew?'disabled':'')} oninput="updateSupDraft('code',this.value)"></div>
+        <div class="old-style-row"><label>Supplier Name</label><input type="text" id="supNameInput" value="${esc(d.name)}" placeholder="Supplier full name" ${dis} oninput="updateSupDraft('name',this.value)"></div>
         <div class="old-style-row"><label>Address 1</label><input type="text" value="${esc(d.address1)}" ${dis} oninput="updateSupDraft('address1',this.value)"></div>
         <div class="old-style-row"><label>Address 2</label><input type="text" value="${esc(d.address2)}" ${dis} oninput="updateSupDraft('address2',this.value)"></div>
         <div class="old-style-row"><label>Phone</label><input type="text" value="${esc(d.phone)}" ${dis} oninput="updateSupDraft('phone',this.value)"></div>
@@ -2340,7 +2506,7 @@ function supplierFormHTML(){
       <div class="card">
         <h3 class="panel-title">Item List</h3>
         ${ro ? '' : `
-        <div class="old-style-row"><label>Magazine</label><select onchange="handleSupMagazineChange(this.value)">${magOptions}</select></div>
+        <div class="old-style-row"><label>Magazine</label><select id="supMagSelect" onchange="handleSupMagazineChange(this.value)">${magOptions}</select></div>
         <div style="display:flex; gap:8px; margin:14px 0 4px;">
           <button class="btn btn-brass" onclick="addSupItemToList()">+ Add Item</button>
           <button class="btn btn-ghost" onclick="resetSupItemDraft()">Reset Item</button>
@@ -2357,11 +2523,11 @@ function supplierFormHTML(){
     <div class="form-actions" style="margin-top:20px;">
       ${ro ? `
         <button class="btn btn-ghost" onclick="closeSupplierForm()">← Back to List</button>
-        <button class="btn btn-brass" onclick="openSupplierForm('${d.code}')">✏️ Edit</button>
+        <button class="btn btn-brass" onclick="openSupplierForm('${d.code}')">${iconSvg('edit')} Edit</button>
       ` : `
         <button class="btn btn-ghost" onclick="closeSupplierForm()">Cancel</button>
         ${!isNew ? `<button class="btn btn-ghost" style="border-color:var(--danger); color:var(--danger);" onclick="confirmDeleteSupplier('${d.code}')">Delete</button>` : ''}
-        <button class="btn btn-brass" onclick="saveSupplier()">💾 Save Supplier</button>
+        <button class="btn btn-brass" onclick="saveSupplier()">${iconSvg('save')} Save Supplier</button>
       `}
     </div>
   `;
@@ -2432,7 +2598,7 @@ function renderSubDealerTableBody(){
       <td>${esc(d.name)}</td>
       <td>${esc(d.areaName)||'—'}</td>
       <td>${esc(d.phone)||'—'}</td>
-      <td>${Number(d.creditLimit||0).toFixed(2)}</td>
+      <td>${fmtMoney(d.creditLimit||0)}</td>
       <td style="text-align:right; white-space:nowrap;">
         <button class="row-action-btn" title="View" onclick="openSubDealerForm('${d.code}', true)">View</button>
         <button class="row-action-btn" title="Edit" onclick="openSubDealerForm('${d.code}')">Edit</button>
@@ -2478,17 +2644,19 @@ function updateSubDealerArea(code){
 }
 
 function saveSubDealer(){
-  if(!subDealerDraft.name || !subDealerDraft.name.trim()){ alert('Dealer Name is required.'); return; }
-  if(!subDealerDraft.code || !subDealerDraft.code.trim()){ alert('Dealer Code is required.'); return; }
+  clearFieldErrors();
+  if(!subDealerDraft.name || !subDealerDraft.name.trim()){ return fieldError('dealerNameInput','Dealer Name is required.'); }
+  if(!subDealerDraft.code || !subDealerDraft.code.trim()){ return fieldError('dealerCodeInput','Dealer Code is required.'); }
   const isNew = !state.subdealerUI.editingId;
   const dupIdx = state.masters.subDealers.findIndex(d=>d.code===subDealerDraft.code);
-  if(isNew && dupIdx>=0){ alert('This Dealer Code already exists.'); return; }
+  if(isNew && dupIdx>=0){ return fieldError('dealerCodeInput','This Dealer Code already exists.'); }
   if(isNew){
     state.masters.subDealers.push(JSON.parse(JSON.stringify(subDealerDraft)));
   } else {
     const idx = state.masters.subDealers.findIndex(d=>d.code===state.subdealerUI.editingId);
     state.masters.subDealers[idx] = JSON.parse(JSON.stringify(subDealerDraft));
   }
+  showToast(`Sub-Dealer "${subDealerDraft.name}" saved.`);
   closeSubDealerForm();
 }
 
@@ -2518,8 +2686,8 @@ function subDealerFormHTML(){
     <div class="sub-form-grid">
       <div class="card">
         <h3 class="panel-title">Details</h3>
-        <div class="old-style-row"><label>Dealer Code</label><input type="text" value="${esc(d.code)}" ${dis || (!isNew?'disabled':'')} oninput="updateSubDealerDraft('code',this.value)"></div>
-        <div class="old-style-row"><label>Dealer Name</label><input type="text" value="${esc(d.name)}" placeholder="Dealer name" ${dis} oninput="updateSubDealerDraft('name',this.value)"></div>
+        <div class="old-style-row"><label>Dealer Code</label><input type="text" id="dealerCodeInput" value="${esc(d.code)}" ${dis || (!isNew?'disabled':'')} oninput="updateSubDealerDraft('code',this.value)"></div>
+        <div class="old-style-row"><label>Dealer Name</label><input type="text" id="dealerNameInput" value="${esc(d.name)}" placeholder="Dealer name" ${dis} oninput="updateSubDealerDraft('name',this.value)"></div>
         <div class="old-style-row"><label>Area</label><select ${dis} onchange="updateSubDealerArea(this.value)">${areaOptions}</select></div>
         <div class="old-style-row"><label>Phone</label><input type="text" value="${esc(d.phone)}" ${dis} oninput="updateSubDealerDraft('phone',this.value)"></div>
         <div class="old-style-row"><label>Credit Limit</label><input type="number" min="0" value="${d.creditLimit}" ${dis} oninput="updateSubDealerDraftNum('creditLimit',this.value)"></div>
@@ -2529,11 +2697,11 @@ function subDealerFormHTML(){
     <div class="form-actions" style="margin-top:20px;">
       ${ro ? `
         <button class="btn btn-ghost" onclick="closeSubDealerForm()">← Back to List</button>
-        <button class="btn btn-brass" onclick="openSubDealerForm('${d.code}')">✏️ Edit</button>
+        <button class="btn btn-brass" onclick="openSubDealerForm('${d.code}')">${iconSvg('edit')} Edit</button>
       ` : `
         <button class="btn btn-ghost" onclick="closeSubDealerForm()">Cancel</button>
         ${!isNew ? `<button class="btn btn-ghost" style="border-color:var(--danger); color:var(--danger);" onclick="confirmDeleteSubDealer('${d.code}')">Delete</button>` : ''}
-        <button class="btn btn-brass" onclick="saveSubDealer()">💾 Save Sub-Dealer</button>
+        <button class="btn btn-brass" onclick="saveSubDealer()">${iconSvg('save')} Save Sub-Dealer</button>
       `}
     </div>
   `;
@@ -2635,17 +2803,19 @@ function closeStallForm(){
 function updateStallDraft(field,value){ if(stallDraft) stallDraft[field]=value; }
 
 function saveStall(){
-  if(!stallDraft.name || !stallDraft.name.trim()){ alert('Stall Name is required.'); return; }
-  if(!stallDraft.code || !stallDraft.code.trim()){ alert('Stall Code is required.'); return; }
+  clearFieldErrors();
+  if(!stallDraft.name || !stallDraft.name.trim()){ return fieldError('stallNameInput','Stall Name is required.'); }
+  if(!stallDraft.code || !stallDraft.code.trim()){ return fieldError('stallCodeInput','Stall Code is required.'); }
   const isNew = !state.stallUI.editingId;
   const dupIdx = state.masters.stalls.findIndex(s=>s.code===stallDraft.code);
-  if(isNew && dupIdx>=0){ alert('This Stall Code already exists.'); return; }
+  if(isNew && dupIdx>=0){ return fieldError('stallCodeInput','This Stall Code already exists.'); }
   if(isNew){
     state.masters.stalls.push(JSON.parse(JSON.stringify(stallDraft)));
   } else {
     const idx = state.masters.stalls.findIndex(s=>s.code===state.stallUI.editingId);
     state.masters.stalls[idx] = JSON.parse(JSON.stringify(stallDraft));
   }
+  showToast(`Stall "${stallDraft.name}" saved.`);
   closeStallForm();
 }
 
@@ -2672,8 +2842,8 @@ function stallFormHTML(){
     <div class="sub-form-grid">
       <div class="card">
         <h3 class="panel-title">Details</h3>
-        <div class="old-style-row"><label>Stall Code</label><input type="text" value="${esc(d.code)}" ${dis || (!isNew?'disabled':'')} oninput="updateStallDraft('code',this.value)"></div>
-        <div class="old-style-row"><label>Stall Name</label><input type="text" value="${esc(d.name)}" placeholder="Stall name" ${dis} oninput="updateStallDraft('name',this.value)"></div>
+        <div class="old-style-row"><label>Stall Code</label><input type="text" id="stallCodeInput" value="${esc(d.code)}" ${dis || (!isNew?'disabled':'')} oninput="updateStallDraft('code',this.value)"></div>
+        <div class="old-style-row"><label>Stall Name</label><input type="text" id="stallNameInput" value="${esc(d.name)}" placeholder="Stall name" ${dis} oninput="updateStallDraft('name',this.value)"></div>
         <div class="old-style-row"><label>Location</label><input type="text" value="${esc(d.location)}" ${dis} oninput="updateStallDraft('location',this.value)"></div>
         <div class="old-style-row"><label>Vendor</label><input type="text" value="${esc(d.vendor)}" ${dis} oninput="updateStallDraft('vendor',this.value)"></div>
       </div>
@@ -2682,11 +2852,11 @@ function stallFormHTML(){
     <div class="form-actions" style="margin-top:20px;">
       ${ro ? `
         <button class="btn btn-ghost" onclick="closeStallForm()">← Back to List</button>
-        <button class="btn btn-brass" onclick="openStallForm('${d.code}')">✏️ Edit</button>
+        <button class="btn btn-brass" onclick="openStallForm('${d.code}')">${iconSvg('edit')} Edit</button>
       ` : `
         <button class="btn btn-ghost" onclick="closeStallForm()">Cancel</button>
         ${!isNew ? `<button class="btn btn-ghost" style="border-color:var(--danger); color:var(--danger);" onclick="confirmDeleteStall('${d.code}')">Delete</button>` : ''}
-        <button class="btn btn-brass" onclick="saveStall()">💾 Save Stall</button>
+        <button class="btn btn-brass" onclick="saveStall()">${iconSvg('save')} Save Stall</button>
       `}
     </div>
   `;
@@ -2784,7 +2954,7 @@ function purchaseEntryHTML(){
     let groupQty = 0, groupAmt = 0;
     const flushGroup = ()=>{
       if(lastSupplier!==null){
-        rows += `<tr style="background:#F1F5FB;"><td colspan="2" style="text-align:right; font-weight:600;">Subtotal — ${esc(lastSupplier)}</td><td style="font-weight:600;">${groupQty}</td><td></td><td style="font-weight:600;">${groupAmt.toFixed(2)}</td></tr>`;
+        rows += `<tr style="background:#F1F5FB;"><td colspan="2" style="text-align:right; font-weight:600;">Subtotal — ${esc(lastSupplier)}</td><td style="font-weight:600;">${groupQty}</td><td></td><td style="font-weight:600;">${fmtMoney(groupAmt)}</td></tr>`;
       }
     };
     purchDraft.forEach((it,idx)=>{
@@ -2801,9 +2971,9 @@ function purchaseEntryHTML(){
         <tr>
           <td style="font-family:var(--font-mono);">${esc(it.magazineCode)}</td>
           <td>${esc(it.magazineName)}</td>
-          <td><input type="number" min="0" value="${it.qty}" style="width:70px; padding:8px; border:1px solid var(--rule); border-radius:3px;" oninput="updatePurchQty(${idx},this.value)"></td>
-          <td>${Number(it.rate).toFixed(2)}</td>
-          <td>${Number(it.amount).toFixed(2)}</td>
+          <td><input type="number" min="0" value="${it.qty}" class="qty-input" oninput="updatePurchQty(${idx},this.value)"></td>
+          <td>${fmtMoney(it.rate)}</td>
+          <td>${fmtMoney(it.amount)}</td>
         </tr>`;
     });
     flushGroup();
@@ -2819,34 +2989,29 @@ function purchaseEntryHTML(){
       <h1 class="module-title">Purchase Posting</h1>
       <div style="display:flex; gap:10px;">
         <button class="btn btn-ghost" onclick="viewPurchaseHistory()">View</button>
+      </div>
+    </div>
+    <div class="skeleton-card">
+      <div class="old-style-row" style="max-width:320px;">
+        <label>Purchase Date</label>
+        <input type="date" value="${esc(state.purchUI.date)}" oninput="updatePurchaseDate(this.value)">
+      </div>
+      <div style="margin:14px 0;">
+        <button class="btn btn-brass" onclick="postPurchase()">Post</button>
         <button class="btn btn-ghost" onclick="exportPurchaseDraft()" ${purchDraft?'':'disabled style="opacity:.5;cursor:not-allowed;"'}>Export</button>
       </div>
-    </div>
-    <div class="sub-title-bar">Purchase Posting</div>
-
-    <div class="sub-form-grid">
-      <div class="card">
-        <h3 class="panel-title">Details</h3>
-        <div class="old-style-row"><label>Purchase Date</label><input type="date" value="${esc(state.purchUI.date)}" oninput="updatePurchaseDate(this.value)"></div>
-        <div style="display:flex; gap:8px; margin:14px 0 4px;">
-          <button class="btn btn-brass" onclick="postPurchase()">Post</button>
-        </div>
-        ${purchDraft ? `<p style="font-size:11.5px; color:var(--text-muted); margin-top:10px;">Items are grouped by Supplier (from Supplier Master) — ${supplierCount} supplier${supplierCount===1?'':'s'} on this date. Enter quantities against each magazine under its supplier and save once for the whole date.</p>` : ''}
-      </div>
-
-      <div class="card">
-        <h3 class="panel-title">Item List — by Supplier</h3>
-        <table class="skeleton-table" style="font-size:12px;">
+      ${purchDraft ? `<p style="font-size:11.5px; color:var(--text-muted); margin:0 0 16px;">Items are grouped by Supplier (from Supplier Master) — ${supplierCount} supplier${supplierCount===1?'':'s'} on this date. Enter quantities against each magazine under its supplier and save once for the whole date.</p>` : ''}
+      ${purchDraft ? `
+        <table class="skeleton-table">
           <thead><tr><th>Mag Code</th><th>Magazine Name</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
           <tbody>${rows}</tbody>
-          ${purchDraft ? `<tfoot><tr><td colspan="2" style="text-align:right; font-weight:600;">Grand Total</td><td style="font-weight:600;">${totalQty}</td><td></td><td style="font-weight:600;">${totalAmt.toFixed(2)}</td></tr></tfoot>` : ''}
+          <tfoot><tr><td colspan="2" style="text-align:right; font-weight:600;">Grand Total</td><td style="font-weight:600;">${totalQty}</td><td></td><td style="font-weight:600;">${fmtMoney(totalAmt)}</td></tr></tfoot>
         </table>
-      </div>
-    </div>
-
-    <div class="form-actions" style="margin-top:20px;">
-      <button class="btn btn-ghost" onclick="cancelPurchaseEntry()">Cancel</button>
-      <button class="btn btn-brass" onclick="savePurchase()" ${purchDraft?'':'disabled style="opacity:.5;cursor:not-allowed;"'}>💾 Save Purchase</button>
+        <div class="form-actions" style="margin-top:20px;">
+          <button class="btn btn-ghost" onclick="cancelPurchaseEntry()">Cancel</button>
+          <button class="btn btn-brass" onclick="savePurchase()">${iconSvg('save')} Save Purchase</button>
+        </div>
+      ` : `<div class="empty-note"><b>No entries yet</b>Pick a Purchase Date and click "Post" to load the magazine list.</div>`}
     </div>
   `;
 }
@@ -2865,14 +3030,14 @@ function cancelPurchaseEntry(){ purchDraft=null; renderPurchaseModule(); }
 function savePurchase(){
   if(!purchDraft){ return; }
   const items = purchDraft.filter(it=>Number(it.qty||0)>0);
-  if(items.length===0){ alert('Enter at least one quantity before saving.'); return; }
+  if(items.length===0){ showToast('Enter at least one quantity before saving.', 'error'); return; }
   const totalQty = items.reduce((a,it)=>a+Number(it.qty||0),0);
   const totalAmount = items.reduce((a,it)=>a+Number(it.amount||0),0);
   const record = { date: state.purchUI.date, items, totalQty, totalAmount };
   const idx = state.purchases.findIndex(p=>p.date===state.purchUI.date);
   if(idx>=0){ state.purchases[idx]=record; } else { state.purchases.push(record); }
   purchDraft=null;
-  alert(`Purchase posting saved for ${formatDateDisplay(state.purchUI.date)}.`);
+  showToast(`Purchase posting saved for ${formatDateDisplay(state.purchUI.date)}.`);
   renderPurchaseModule();
 }
 
@@ -2897,7 +3062,7 @@ function purchaseHistoryHTML(){
       <td>${p.items.length} title${p.items.length===1?'':'s'}</td>
       <td>${supCodes.size} supplier${supCodes.size===1?'':'s'}</td>
       <td>${p.totalQty}</td>
-      <td>${Number(p.totalAmount).toFixed(2)}</td>
+      <td>${fmtMoney(p.totalAmount)}</td>
       <td style="text-align:right; white-space:nowrap;">
         <button class="row-action-btn" onclick="loadPurchaseRecord('${p.date}')">Open</button>
         <button class="row-action-btn danger" onclick="deletePurchaseRecord('${p.date}')">Delete</button>
@@ -2978,9 +3143,9 @@ function salesEntryHTML(){
       <td style="font-family:var(--font-mono);">${esc(it.customerCode)}</td>
       <td>${esc(it.customerName)}</td>
       <td>${esc(it.magazineName)}</td>
-      <td><input type="number" min="0" value="${it.qty}" style="width:80px; padding:8px; border:1px solid var(--rule); border-radius:3px;" oninput="updateSalesQty(${idx},this.value)"></td>
-      <td>${Number(it.rate).toFixed(2)}</td>
-      <td>${Number(it.amount).toFixed(2)}</td>
+      <td><input type="number" min="0" value="${it.qty}" class="qty-input" oninput="updateSalesQty(${idx},this.value)"></td>
+      <td>${fmtMoney(it.rate)}</td>
+      <td>${fmtMoney(it.amount)}</td>
     </tr>
   `).join('') : '';
   const totalQty = salesDraft ? salesDraft.reduce((a,it)=>a+Number(it.qty||0),0) : 0;
@@ -3015,11 +3180,11 @@ function salesEntryHTML(){
         <table class="skeleton-table">
           <thead><tr><th>Code</th><th>Customer</th><th>Magazine</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
           <tbody>${rows}</tbody>
-          <tfoot><tr><td colspan="3" style="text-align:right; font-weight:600;">Total</td><td style="font-weight:600;">${totalQty}</td><td></td><td style="font-weight:600;">${totalAmt.toFixed(2)}</td></tr></tfoot>
+          <tfoot><tr><td colspan="3" style="text-align:right; font-weight:600;">Total</td><td style="font-weight:600;">${totalQty}</td><td></td><td style="font-weight:600;">${fmtMoney(totalAmt)}</td></tr></tfoot>
         </table>
         <div class="form-actions" style="margin-top:20px;">
           <button class="btn btn-ghost" onclick="cancelSalesEntry()">Cancel</button>
-          <button class="btn btn-brass" onclick="saveSales()">💾 Save Sales</button>
+          <button class="btn btn-brass" onclick="saveSales()">${iconSvg('save')} Save Sales</button>
         </div>
       ` : `<div class="empty-note"><b>Nothing to post</b>${emptyMsg}</div>`) : `<div class="empty-note"><b>No entries yet</b>Pick a Sales Date and Customer Type, then click "Post" to load the list.</div>`}
     </div>
@@ -3041,14 +3206,14 @@ function cancelSalesEntry(){ salesDraft=null; renderSalesModule(); }
 function saveSales(){
   if(!salesDraft || salesDraft.length===0){ return; }
   const items = salesDraft.filter(it=>Number(it.qty||0)>0);
-  if(items.length===0){ alert('Enter at least one quantity before saving.'); return; }
+  if(items.length===0){ showToast('Enter at least one quantity before saving.', 'error'); return; }
   const totalQty = items.reduce((a,it)=>a+Number(it.qty||0),0);
   const totalAmount = items.reduce((a,it)=>a+Number(it.amount||0),0);
   const record = { date: state.salesUI.date, customerType: state.salesUI.customerType, items, totalQty, totalAmount };
   const idx = state.sales.findIndex(s=>s.date===state.salesUI.date && s.customerType===state.salesUI.customerType);
   if(idx>=0){ state.sales[idx]=record; } else { state.sales.push(record); }
   salesDraft=null;
-  alert(`Sales posting saved for ${formatDateDisplay(state.salesUI.date)}.`);
+  showToast(`Sales posting saved for ${formatDateDisplay(state.salesUI.date)}.`);
   renderSalesModule();
 }
 
@@ -3063,7 +3228,7 @@ function salesHistoryHTML(){
       <td>${esc(s.customerType)}</td>
       <td>${s.items.length} line${s.items.length===1?'':'s'}</td>
       <td>${s.totalQty}</td>
-      <td>${Number(s.totalAmount).toFixed(2)}</td>
+      <td>${fmtMoney(s.totalAmount)}</td>
       <td style="text-align:right; white-space:nowrap;">
         <button class="row-action-btn" onclick="loadSalesRecord('${s.date}','${s.customerType}')">Open</button>
         <button class="row-action-btn danger" onclick="deleteSalesRecord('${s.date}','${s.customerType}')">Delete</button>
@@ -3309,8 +3474,8 @@ function billEntryHTML(){
       <td>${esc(r.partyName)}</td>
       <td style="font-family:var(--font-mono);">${esc(areaBillCode(r.areaCode, r.areaName))}</td>
       <td>${esc(r.areaName)}</td>
-      <td>${Number(r.deliveryAmount).toFixed(2)}</td>
-      <td>${Number(r.openBalance).toFixed(2)}</td>
+      <td>${fmtMoney(r.deliveryAmount)}</td>
+      <td>${fmtMoney(r.openBalance)}</td>
       <td style="font-weight:600;">${Math.round(r.amount)}</td>
     </tr>
   `).join('') : '';
@@ -3376,7 +3541,7 @@ function updateBillFilter(field,value){
 
 function prepareBill(){
   if(state.billUI.customerType!=='Subscriber'){
-    alert(`${state.billUI.customerType} Entry hasn't been built out yet, so there's no customer data to bill against.`);
+    showToast(`${state.billUI.customerType} Entry hasn't been built out yet, so there's no customer data to bill against.`, 'error');
     billDraft=[];
     renderBillModule();
     return;
@@ -3402,7 +3567,7 @@ function processBill(){
   });
   const count = billDraft.length;
   billDraft = null;
-  alert(`${count} bill${count===1?'':'s'} generated and saved to Bill Status.`);
+  showToast(`${count} bill${count===1?'':'s'} generated and saved to Bill Status.`);
   renderBillModule();
 }
 
@@ -3426,7 +3591,7 @@ function buildBillStatementHTML(list, f){
       <td class="stmt-cust">${esc(r.partyName)} -&gt; ${esc(subscriberAddressLine(r.partyCode))}</td>
       <td class="stmt-code">${esc(r.partyCode)}</td>
       <td class="stmt-rec">&nbsp;</td>
-      <td class="stmt-bal">${Number(r.amount||0).toFixed(2)}</td>
+      <td class="stmt-bal">${fmtMoney(r.amount||0)}</td>
     </tr>
   `).join('') : `<tr><td colspan="5" style="text-align:center; padding:16px;">No records in this code range.</td></tr>`;
   const totalAmt = list.reduce((a,r)=>a+Number(r.amount||0),0);
@@ -3463,7 +3628,7 @@ function buildBillStatementHTML(list, f){
     <table>
       <thead><tr><th>S.NO</th><th>CUSTOMER NAME</th><th>CODE</th><th>REC. AMT</th><th style="text-align:right;">BAL. AMT</th></tr></thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr><td colspan="3">TOTAL BILLS: ${list.length}</td><td>0.00</td><td style="text-align:right;">${totalAmt.toFixed(2)}</td></tr></tfoot>
+      <tfoot><tr><td colspan="3">TOTAL BILLS: ${list.length}</td><td>₹0.00</td><td style="text-align:right;">${fmtMoney(totalAmt)}</td></tr></tfoot>
     </table>
     <div class="no-print" style="text-align:center; margin-top:20px;">
       <button onclick="window.print()" style="padding:9px 22px; cursor:pointer; background:#0B2148; color:#fff; border:none; border-radius:5px; font-family:'Inter',sans-serif; font-weight:600; font-size:13px;">Print</button>
@@ -3472,9 +3637,9 @@ function buildBillStatementHTML(list, f){
 }
 
 function printBillStatement(){
-  if(!billDraft || billDraft.length===0){ alert('Click "Prepare" first to build the list for this code range.'); return; }
+  if(!billDraft || billDraft.length===0){ showToast('Click "Prepare" first to build the list for this code range.', 'error'); return; }
   const w = window.open('', '_blank');
-  if(!w){ alert('Please allow pop-ups to view the statement.'); return; }
+  if(!w){ showToast('Please allow pop-ups to view the statement.', 'error'); return; }
   w.document.write(buildBillStatementHTML(billDraft, state.billUI));
   w.document.close();
 }
@@ -3619,7 +3784,7 @@ function openInvoice(billNo){
   const b = state.bills.find(x=>x.billNo===billNo);
   if(!b) return;
   const w = window.open('', '_blank');
-  if(!w){ alert('Please allow pop-ups to view the bill.'); return; }
+  if(!w){ showToast('Please allow pop-ups to view the bill.', 'error'); return; }
   w.document.write(buildInvoiceHTML(b));
   w.document.close();
 }
@@ -3647,13 +3812,13 @@ function sendBillWhatsApp(billNo){
   const b = state.bills.find(x=>x.billNo===billNo);
   if(!b) return;
   const phone = normalizePhoneForWhatsApp(partyPhone(b.partyCode));
-  if(!phone){ alert(`No phone number on file for ${b.partyName}. Add one via Subscriber Entry.`); return; }
+  if(!phone){ showToast(`No phone number on file for ${b.partyName}. Add one via Subscriber Entry.`, 'error'); return; }
   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildBillWhatsAppMessage(b))}`, '_blank');
 }
 
 function sendSelectedBillsWhatsApp(){
   const sel = state.billUI.selected || [];
-  if(sel.length===0){ alert('Select at least one bill using the checkboxes first.'); return; }
+  if(sel.length===0){ showToast('Select at least one bill using the checkboxes first.', 'error'); return; }
   let sent = 0; const skipped = [];
   sel.forEach(billNo=>{
     const b = state.bills.find(x=>x.billNo===billNo);
@@ -3663,7 +3828,7 @@ function sendSelectedBillsWhatsApp(){
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildBillWhatsAppMessage(b))}`, '_blank');
     sent++;
   });
-  alert(`Opened WhatsApp for ${sent} bill${sent===1?'':'s'}.${skipped.length?` Skipped (no phone on file): ${skipped.join(', ')}`:''}`);
+  showToast(`Opened WhatsApp for ${sent} bill${sent===1?'':'s'}.${skipped.length?` Skipped (no phone on file): ${skipped.join(', ')}`:''}`);
 }
 
 function viewBillStatus(){ state.billUI.view='status'; renderBillModule(); }
@@ -3756,9 +3921,9 @@ function billDetailHTML(){
         <div class="old-style-row"><label>Bill Date</label><div style="padding:8px 0;">${formatDateDisplay(b.date)}</div></div>
         <div class="old-style-row"><label>Period</label><div style="padding:8px 0;">${formatDateDisplay(b.periodStart)} – ${formatDateDisplay(b.periodEnd)}</div></div>
         <div class="old-style-row"><label>Payment Mode</label><div style="padding:8px 0;">${esc(b.paymentMode)}</div></div>
-        <div class="old-style-row"><label>Delivery Amount</label><div style="padding:8px 0;">${Number(b.deliveryAmount||0).toFixed(2)}</div></div>
-        <div class="old-style-row"><label>Service Charge</label><div style="padding:8px 0;">${Number(b.serviceCharge||0).toFixed(2)}</div></div>
-        <div class="old-style-row"><label>Open Balance</label><div style="padding:8px 0;">${Number(b.openBalance||0).toFixed(2)}</div></div>
+        <div class="old-style-row"><label>Delivery Amount</label><div style="padding:8px 0;">${fmtMoney(b.deliveryAmount||0)}</div></div>
+        <div class="old-style-row"><label>Service Charge</label><div style="padding:8px 0;">${fmtMoney(b.serviceCharge||0)}</div></div>
+        <div class="old-style-row"><label>Open Balance</label><div style="padding:8px 0;">${fmtMoney(b.openBalance||0)}</div></div>
         <div class="old-style-row"><label>Total Amount</label><div style="padding:8px 0; font-weight:700; font-size:16px;">${Math.round(b.amount)}</div></div>
       </div>
     </div>
@@ -3807,13 +3972,13 @@ function sendReminderWhatsApp(partyCode){
   const row = outstandingByParty().find(r=>r.partyCode===partyCode);
   if(!row) return;
   const phone = normalizePhoneForWhatsApp(partyPhone(partyCode));
-  if(!phone){ alert(`No phone number on file for ${row.partyName}. Add one via Subscriber Entry.`); return; }
+  if(!phone){ showToast(`No phone number on file for ${row.partyName}. Add one via Subscriber Entry.`, 'error'); return; }
   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildReminderWhatsAppMessage(row))}`, '_blank');
 }
 
 function sendAllOutstandingReminders(){
   const list = outstandingByParty();
-  if(list.length===0){ alert('No outstanding dues to remind.'); return; }
+  if(list.length===0){ showToast('No outstanding dues to remind.', 'error'); return; }
   let sent = 0; const skipped = [];
   list.forEach(row=>{
     const phone = normalizePhoneForWhatsApp(partyPhone(row.partyCode));
@@ -3821,7 +3986,7 @@ function sendAllOutstandingReminders(){
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildReminderWhatsAppMessage(row))}`, '_blank');
     sent++;
   });
-  alert(`Opened WhatsApp reminders for ${sent} subscriber${sent===1?'':'s'}.${skipped.length?` Skipped (no phone on file): ${skipped.join(', ')}`:''}`);
+  showToast(`Opened WhatsApp reminders for ${sent} subscriber${sent===1?'':'s'}.${skipped.length?` Skipped (no phone on file): ${skipped.join(', ')}`:''}`);
 }
 
 function billOutstandingHTML(){
@@ -3876,7 +4041,7 @@ const REPORTS = {
     columns:[['code','Code'],['magazine','Magazine'],['type','Type'],['supplyStatus','Supply Status'],['commission','Commission']],
     getRows(){
       return state.masters.magazines.map(m=>({
-        code:m.code, magazine:m.name, type:m.magType, supplyStatus:m.supplyStatus, commission:Number(m.commission||0).toFixed(2)
+        code:m.code, magazine:m.name, type:m.magType, supplyStatus:m.supplyStatus, commission:fmtMoney(m.commission||0)
       }));
     }
   },
@@ -3958,7 +4123,7 @@ const REPORTS = {
         if(!within(rec.date,from,to)) return;
         rec.items.forEach(it=>rows.push({
           subscriber:`${it.customerName} (${it.customerCode})`, magazine:it.magazineName,
-          qty:it.qty, amount:Number(it.amount).toFixed(2)
+          qty:it.qty, amount:fmtMoney(it.amount)
         }));
       });
       return rows;
@@ -3976,7 +4141,7 @@ const REPORTS = {
         else { p.due += Number(b.amount||0); }
       });
       return Object.entries(byParty).map(([code,p])=>({
-        subscriber:`${p.partyName} (${code})`, amountDue:p.due.toFixed(2),
+        subscriber:`${p.partyName} (${code})`, amountDue:fmtMoney(p.due),
         lastPaid: p.lastPaid ? formatDateDisplay(p.lastPaid) : '—', status: p.due>0 ? 'Unpaid' : 'Paid'
       }));
     }
@@ -4002,7 +4167,7 @@ const REPORTS = {
     getRows(from,to){
       return state.bills.filter(b=>b.status==='Paid' && within(b.date,from,to)).map(b=>({
         subscriber:`${b.partyName} (${b.partyCode})`, date:formatDateDisplay(b.date),
-        amount:Number(b.amount).toFixed(2), mode:b.paymentMode
+        amount:fmtMoney(b.amount), mode:b.paymentMode
       }));
     }
   },
@@ -4025,7 +4190,7 @@ const REPORTS = {
           totals[it.magazineCode].amount += Number(it.amount||0);
         });
       });
-      return Object.values(totals).filter(t=>t.qty>0).map(t=>({ supplier:'—', magazine:t.name, qty:t.qty, amount:t.amount.toFixed(2) }));
+      return Object.values(totals).filter(t=>t.qty>0).map(t=>({ supplier:'—', magazine:t.name, qty:t.qty, amount:fmtMoney(t.amount) }));
     }
   },
   'rpt-profit-loss': {
@@ -4037,7 +4202,7 @@ const REPORTS = {
       const income = salesIncome + counterIncome;
       const expense = state.purchases.filter(p=>within(p.date,from,to)).reduce((a,p)=>a+Number(p.totalAmount||0),0);
       const period = (from||to) ? `${from?formatDateDisplay(from):'…'} to ${to?formatDateDisplay(to):'…'}` : 'All Time';
-      return [{ period, income:income.toFixed(2), expense:expense.toFixed(2), net:(income-expense).toFixed(2) }];
+      return [{ period, income:fmtMoney(income), expense:fmtMoney(expense), net:fmtMoney(income-expense) }];
     }
   }
 };
@@ -4278,7 +4443,7 @@ function handleRestoreFile(file){
   reader.onload = ()=>{
     let data;
     try{ data = JSON.parse(reader.result); }
-    catch(e){ alert('This file isn\'t valid backup JSON.'); return; }
+    catch(e){ showToast('This file isn\'t valid backup JSON.', 'error'); return; }
     openModal('Restore Backup', `This will replace all current Suppliers, Magazines, Areas, Subscribers, Purchases, Sales and Bills with the contents of "${file.name}". Continue?`, 'Restore', ()=>{
       if(data.company) state.company = data.company;
       if(data.masters) state.masters = data.masters;
@@ -4290,7 +4455,7 @@ function handleRestoreFile(file){
       if(data.unsold) state.unsold = data.unsold;
       if(data.receipts) state.receipts = data.receipts;
       renderBackupUtility();
-      alert('Backup restored successfully.');
+      showToast('Backup restored successfully.');
     });
   };
   reader.readAsText(file);
@@ -4370,9 +4535,9 @@ function counterEntryHTML(){
     <tr>
       <td style="font-family:var(--font-mono);">${esc(it.magazineCode)}</td>
       <td>${esc(it.magazineName)}</td>
-      <td><input type="number" min="0" value="${it.qty}" style="width:70px; padding:8px; border:1px solid var(--rule); border-radius:3px;" oninput="updateCounterQty(${idx},this.value)"></td>
-      <td>${Number(it.rate).toFixed(2)}</td>
-      <td>${Number(it.amount).toFixed(2)}</td>
+      <td><input type="number" min="0" value="${it.qty}" class="qty-input" oninput="updateCounterQty(${idx},this.value)"></td>
+      <td>${fmtMoney(it.rate)}</td>
+      <td>${fmtMoney(it.amount)}</td>
     </tr>
   `).join('') : `<tr><td colspan="5"><div class="empty-note" style="padding:18px;"><b>No entries yet</b>Pick a Sale Date and click "Post" to load the magazine list.</div></td></tr>`;
   const totalQty = counterDraft ? counterDraft.reduce((a,it)=>a+Number(it.qty||0),0) : 0;
@@ -4384,30 +4549,25 @@ function counterEntryHTML(){
       <h1 class="module-title">Counter Sales</h1>
       <button class="btn btn-ghost" onclick="viewCounterHistory()">View</button>
     </div>
-    <div class="sub-title-bar">Counter Sales</div>
-
-    <div class="sub-form-grid">
-      <div class="card">
-        <h3 class="panel-title">Details</h3>
-        <div class="old-style-row"><label>Sale Date</label><input type="date" value="${esc(state.counterUI.date)}" oninput="updateCounterDate(this.value)"></div>
-        <div style="display:flex; gap:8px; margin:14px 0 4px;">
-          <button class="btn btn-brass" onclick="postCounterSales()">Post</button>
-        </div>
+    <div class="skeleton-card">
+      <div class="old-style-row" style="max-width:320px;">
+        <label>Sale Date</label>
+        <input type="date" value="${esc(state.counterUI.date)}" oninput="updateCounterDate(this.value)">
       </div>
-
-      <div class="card">
-        <h3 class="panel-title">Item List</h3>
-        <table class="skeleton-table" style="font-size:12px;">
+      <div style="margin:14px 0;">
+        <button class="btn btn-brass" onclick="postCounterSales()">Post</button>
+      </div>
+      ${counterDraft ? `
+        <table class="skeleton-table">
           <thead><tr><th>Mag Code</th><th>Magazine Name</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
           <tbody>${rows}</tbody>
-          ${counterDraft ? `<tfoot><tr><td colspan="2" style="text-align:right; font-weight:600;">Total</td><td style="font-weight:600;">${totalQty}</td><td></td><td style="font-weight:600;">${totalAmt.toFixed(2)}</td></tr></tfoot>` : ''}
+          <tfoot><tr><td colspan="2" style="text-align:right; font-weight:600;">Total</td><td style="font-weight:600;">${totalQty}</td><td></td><td style="font-weight:600;">${fmtMoney(totalAmt)}</td></tr></tfoot>
         </table>
-      </div>
-    </div>
-
-    <div class="form-actions" style="margin-top:20px;">
-      <button class="btn btn-ghost" onclick="cancelCounterEntry()">Cancel</button>
-      <button class="btn btn-brass" onclick="saveCounterSales()" ${counterDraft?'':'disabled style="opacity:.5;cursor:not-allowed;"'}>💾 Save Counter Sales</button>
+        <div class="form-actions" style="margin-top:20px;">
+          <button class="btn btn-ghost" onclick="cancelCounterEntry()">Cancel</button>
+          <button class="btn btn-brass" onclick="saveCounterSales()">${iconSvg('save')} Save Counter Sales</button>
+        </div>
+      ` : `<div class="empty-note"><b>No entries yet</b>Pick a Sale Date and click "Post" to load the magazine list.</div>`}
     </div>
   `;
 }
@@ -4426,14 +4586,14 @@ function cancelCounterEntry(){ counterDraft=null; renderCounterSalesModule(); }
 function saveCounterSales(){
   if(!counterDraft) return;
   const items = counterDraft.filter(it=>Number(it.qty||0)>0);
-  if(items.length===0){ alert('Enter at least one quantity before saving.'); return; }
+  if(items.length===0){ showToast('Enter at least one quantity before saving.', 'error'); return; }
   const totalQty = items.reduce((a,it)=>a+Number(it.qty||0),0);
   const totalAmount = items.reduce((a,it)=>a+Number(it.amount||0),0);
   const record = { date: state.counterUI.date, items, totalQty, totalAmount };
   const idx = state.counterSales.findIndex(c=>c.date===state.counterUI.date);
   if(idx>=0){ state.counterSales[idx]=record; } else { state.counterSales.push(record); }
   counterDraft=null;
-  alert(`Counter sales saved for ${formatDateDisplay(state.counterUI.date)}.`);
+  showToast(`Counter sales saved for ${formatDateDisplay(state.counterUI.date)}.`);
   renderCounterSalesModule();
 }
 
@@ -4447,7 +4607,7 @@ function counterHistoryHTML(){
       <td>${formatDateDisplay(c.date)}</td>
       <td>${c.items.length} title${c.items.length===1?'':'s'}</td>
       <td>${c.totalQty}</td>
-      <td>${Number(c.totalAmount).toFixed(2)}</td>
+      <td>${fmtMoney(c.totalAmount)}</td>
       <td style="text-align:right; white-space:nowrap;">
         <button class="row-action-btn" onclick="loadCounterRecord('${c.date}')">Open</button>
         <button class="row-action-btn danger" onclick="deleteCounterRecord('${c.date}')">Delete</button>
@@ -4655,9 +4815,10 @@ function updateUnsoldMagazine(code){
 }
 
 function saveUnsold(){
-  if(!unsoldDraft.outletName || !unsoldDraft.outletName.trim()){ alert('Dealer/Stall name is required.'); return; }
-  if(!unsoldDraft.magazineCode){ alert('Please select a magazine.'); return; }
-  if(!unsoldDraft.qty || Number(unsoldDraft.qty)<=0){ alert('Qty Returned must be greater than zero.'); return; }
+  clearFieldErrors();
+  if(!unsoldDraft.outletName || !unsoldDraft.outletName.trim()){ return fieldError('unsoldOutletInput','Dealer/Stall name is required.'); }
+  if(!unsoldDraft.magazineCode){ return fieldError('unsoldMagSelect','Please select a magazine.'); }
+  if(!unsoldDraft.qty || Number(unsoldDraft.qty)<=0){ return fieldError('unsoldQtyInput','Qty Returned must be greater than zero.'); }
   const isNew = !state.unsoldUI.editingId;
   if(isNew){
     state.unsold.push(JSON.parse(JSON.stringify(unsoldDraft)));
@@ -4665,6 +4826,7 @@ function saveUnsold(){
     const idx = state.unsold.findIndex(u=>u.id===state.unsoldUI.editingId);
     state.unsold[idx] = JSON.parse(JSON.stringify(unsoldDraft));
   }
+  showToast('Unsold return saved.');
   closeUnsoldForm();
 }
 
@@ -4694,20 +4856,20 @@ function unsoldFormHTML(){
       <div class="card">
         <h3 class="panel-title">Details</h3>
         <div class="old-style-row"><label>Date</label><input type="date" value="${esc(d.date)}" ${dis} oninput="updateUnsoldDraft('date',this.value)"></div>
-        <div class="old-style-row"><label>Dealer/Stall</label><input type="text" value="${esc(d.outletName)}" placeholder="Outlet name" ${dis} oninput="updateUnsoldDraft('outletName',this.value)"></div>
-        <div class="old-style-row"><label>Magazine</label><select ${dis} onchange="updateUnsoldMagazine(this.value)">${magOptions}</select></div>
-        <div class="old-style-row"><label>Qty Returned</label><input type="number" min="0" value="${d.qty}" ${dis} oninput="updateUnsoldDraftNum('qty',this.value)"></div>
+        <div class="old-style-row"><label>Dealer/Stall</label><input type="text" id="unsoldOutletInput" value="${esc(d.outletName)}" placeholder="Outlet name" ${dis} oninput="updateUnsoldDraft('outletName',this.value)"></div>
+        <div class="old-style-row"><label>Magazine</label><select id="unsoldMagSelect" ${dis} onchange="updateUnsoldMagazine(this.value)">${magOptions}</select></div>
+        <div class="old-style-row"><label>Qty Returned</label><input type="number" min="0" id="unsoldQtyInput" value="${d.qty}" ${dis} oninput="updateUnsoldDraftNum('qty',this.value)"></div>
         <div class="old-style-row"><label>Remarks</label><input type="text" value="${esc(d.remarks)}" placeholder="Optional" ${dis} oninput="updateUnsoldDraft('remarks',this.value)"></div>
       </div>
     </div>
     <div class="form-actions" style="margin-top:20px;">
       ${ro ? `
         <button class="btn btn-ghost" onclick="closeUnsoldForm()">← Back to List</button>
-        <button class="btn btn-brass" onclick="openUnsoldForm('${d.id}')">✏️ Edit</button>
+        <button class="btn btn-brass" onclick="openUnsoldForm('${d.id}')">${iconSvg('edit')} Edit</button>
       ` : `
         <button class="btn btn-ghost" onclick="closeUnsoldForm()">Cancel</button>
         ${!isNew ? `<button class="btn btn-ghost" style="border-color:var(--danger); color:var(--danger);" onclick="confirmDeleteUnsold('${d.id}')">Delete</button>` : ''}
-        <button class="btn btn-brass" onclick="saveUnsold()">💾 Save Return</button>
+        <button class="btn btn-brass" onclick="saveUnsold()">${iconSvg('save')} Save Return</button>
       `}
     </div>
   `;
@@ -4738,7 +4900,7 @@ function billCollectionEntryHTML(){
   const partyOptions = `<option value="">— Select —</option>` + parties.map(p=>{
     const sub = state.subscribers.find(s=>s.partyCode===p.partyCode);
     const holdFlag = sub && isDateOnHold(sub, todayISO()) ? ' [On Hold]' : '';
-    return `<option value="${p.partyCode}" ${ui.partyCode===p.partyCode?'selected':''}>${esc(p.partyName)} (${esc(p.partyCode)}) — ${p.total.toFixed(2)} due${holdFlag}</option>`;
+    return `<option value="${p.partyCode}" ${ui.partyCode===p.partyCode?'selected':''}>${esc(p.partyName)} (${esc(p.partyCode)}) — ${fmtMoney(p.total)} due${holdFlag}</option>`;
   }).join('');
   const modeOptions = ['Cash','UPI','Cheque','Bank Transfer'].map(m=>
     `<option value="${m}" ${ui.mode===m?'selected':''}>${m}</option>`
@@ -4747,10 +4909,10 @@ function billCollectionEntryHTML(){
   const unpaidBills = ui.partyCode ? state.bills.filter(b=>b.partyCode===ui.partyCode && b.status==='Unpaid') : [];
   const billRows = unpaidBills.map(b=>`
     <tr>
-      <td><input type="checkbox" ${ui.selectedBills.includes(b.billNo)?'checked':''} onchange="toggleCollBill('${b.billNo}')"></td>
+      <td class="coll-check"><input type="checkbox" ${ui.selectedBills.includes(b.billNo)?'checked':''} onchange="toggleCollBill('${b.billNo}')"></td>
       <td style="font-family:var(--font-mono);">${esc(b.billNo)}</td>
       <td>${formatDateDisplay(b.periodStart)} – ${formatDateDisplay(b.periodEnd)}</td>
-      <td>${Number(b.amount).toFixed(2)}</td>
+      <td style="text-align:right;">₹${Number(b.amount).toFixed(2)}</td>
     </tr>
   `).join('');
   const selectedTotal = state.bills
@@ -4764,25 +4926,24 @@ function billCollectionEntryHTML(){
       <button class="btn btn-ghost" onclick="viewCollectionHistory()">View</button>
     </div>
     <div class="skeleton-card">
-      <div class="sub-form-grid">
-        <div>
-          <div class="old-style-row"><label>Party</label><select onchange="updateCollParty(this.value)">${partyOptions}</select></div>
-          <div class="old-style-row"><label>Collection Date</label><input type="date" value="${esc(ui.date)}" oninput="updateCollDate(this.value)"></div>
-          <div class="old-style-row"><label>Payment Mode</label><select onchange="updateCollMode(this.value)">${modeOptions}</select></div>
-        </div>
-        <div>
-          ${ui.partyCode ? (unpaidBills.length ? `
-            <table class="skeleton-table" style="font-size:12px;">
-              <thead><tr><th></th><th>Bill No</th><th>Period</th><th>Amount</th></tr></thead>
-              <tbody>${billRows}</tbody>
-            </table>
-            <div style="text-align:right; margin-top:10px; font-weight:600;">Amount Collected: ${selectedTotal.toFixed(2)}</div>
-          ` : `<div class="empty-note"><b>No unpaid bills</b>This party has nothing outstanding.</div>`) : `<div class="empty-note"><b>Select a party</b>Choose a subscriber on the left to see their unpaid bills.</div>`}
-        </div>
+      <div class="coll-fields-row">
+        <div class="old-style-row"><label>Party</label><select onchange="updateCollParty(this.value)">${partyOptions}</select></div>
+        <div class="old-style-row"><label>Collection Date</label><input type="date" value="${esc(ui.date)}" oninput="updateCollDate(this.value)"></div>
+        <div class="old-style-row"><label>Payment Mode</label><select onchange="updateCollMode(this.value)">${modeOptions}</select></div>
       </div>
+      ${ui.partyCode ? (unpaidBills.length ? `
+        <table class="skeleton-table coll-bills-table">
+          <thead><tr><th class="coll-check"></th><th>Bill No</th><th>Period</th><th style="text-align:right;">Amount</th></tr></thead>
+          <tbody>${billRows}</tbody>
+        </table>
+        <div class="coll-total-bar">
+          <span>${ui.selectedBills.length} bill${ui.selectedBills.length===1?'':'s'} selected</span>
+          <span>Amount Collected: <b>₹${selectedTotal.toFixed(2)}</b></span>
+        </div>
+      ` : `<div class="empty-note"><b>No unpaid bills</b>This party has nothing outstanding.</div>`) : `<div class="empty-note"><b>Select a party</b>Choose a subscriber above to see their unpaid bills.</div>`}
       <div class="form-actions" style="margin-top:20px;">
         <button class="btn btn-ghost" onclick="cancelCollection()">Cancel</button>
-        <button class="btn btn-brass" onclick="collectPayment()" ${ui.selectedBills.length?'':'disabled style="opacity:.5;cursor:not-allowed;"'}>💾 Collect Payment</button>
+        <button class="btn btn-brass" onclick="collectPayment()" ${ui.selectedBills.length?'':'disabled style="opacity:.5;cursor:not-allowed;"'}>${iconSvg('save')} Collect Payment</button>
       </div>
     </div>
   `;
@@ -4815,7 +4976,7 @@ function collectPayment(){
   selected.forEach(b=>{ b.status='Paid'; });
   const count = selected.length;
   state.collUI.partyCode=''; state.collUI.selectedBills=[];
-  alert(`Receipt ${receiptNo} recorded — ${count} bill${count===1?'':'s'} marked Paid.`);
+  showToast(`Receipt ${receiptNo} recorded — ${count} bill${count===1?'':'s'} marked Paid.`);
   renderBillCollectionModule();
 }
 
@@ -4832,7 +4993,7 @@ function collectionHistoryHTML(){
       <td style="font-family:var(--font-mono);">${esc(r.receiptNo)}</td>
       <td>${formatDateDisplay(r.date)}</td>
       <td>${esc(r.partyName)} (${esc(r.partyCode)})</td>
-      <td>${Number(r.amount).toFixed(2)}</td>
+      <td>${fmtMoney(r.amount)}</td>
       <td>${esc(r.mode)}</td>
       <td style="text-align:right; white-space:nowrap;"><button class="row-action-btn danger" onclick="deleteReceipt('${r.receiptNo}')">Delete</button></td>
     </tr>
