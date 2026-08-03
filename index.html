@@ -4,24 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Distribution Ledger — Offline CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1B2436;
-    --ink-2:#242E45;
-    --ink-3:#2E3A56;
-    --paper:#F5F2EA;
+    --ink:#0B2148;
+    --ink-2:#122C5A;
+    --ink-3:#1B3E7A;
+    --paper:#EEF2F8;
     --paper-card:#FFFFFF;
-    --brass:#B8863B;
-    --brass-light:#E4C88C;
-    --brass-dark:#8F6626;
-    --text:#22262E;
-    --text-muted:#6B7280;
-    --success:#2F7A55;
-    --danger:#B3432B;
-    --rule:#DCD6C7;
+    --brass:#2A5DC7;
+    --brass-light:#D6E4FA;
+    --brass-dark:#1B3E7A;
+    --text:#1B2333;
+    --text-muted:#647087;
+    --success:#1F8A5F;
+    --danger:#C0392B;
+    --rule:#DFE5EF;
     --rule-dark:rgba(255,255,255,0.10);
-    --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
-    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-display: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --font-mono: 'Courier New', Courier, monospace;
   }
   *{box-sizing:border-box;}
@@ -49,8 +52,8 @@
     align-items:center;
     justify-content:center;
     background:
-      radial-gradient(circle at 20% 20%, rgba(184,134,58,0.10), transparent 45%),
-      radial-gradient(circle at 80% 80%, rgba(184,134,58,0.08), transparent 45%),
+      radial-gradient(circle at 20% 20%, rgba(42,93,199,0.10), transparent 45%),
+      radial-gradient(circle at 80% 80%, rgba(42,93,199,0.08), transparent 45%),
       var(--ink);
     padding:24px;
     position:relative;
@@ -68,7 +71,7 @@
     max-width:420px;
     background:var(--paper-card);
     border-radius:2px;
-    box-shadow:0 30px 60px -20px rgba(0,0,0,0.5), 0 0 0 1px rgba(184,134,58,0.25);
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.5), 0 0 0 1px rgba(42,93,199,0.25);
     padding:44px 40px 36px;
     animation:riseIn .6s ease;
   }
@@ -120,14 +123,14 @@
     border:1px solid var(--rule);
     border-radius:3px;
     font-size:14.5px;
-    background:#FCFBF8;
+    background:#F7FAFD;
     color:var(--text);
     transition:border-color .15s, box-shadow .15s;
   }
   .field input:focus, .field select:focus{
     outline:none;
     border-color:var(--brass);
-    box-shadow:0 0 0 3px rgba(184,134,58,0.18);
+    box-shadow:0 0 0 3px rgba(42,93,199,0.18);
     background:#fff;
   }
   .btn{
@@ -166,7 +169,7 @@
     text-align:center;
     font-size:12px;
     color:var(--text-muted);
-    background:#FBF7EE;
+    background:#F1F5FB;
     border:1px dashed var(--rule);
     padding:9px 10px;
     border-radius:3px;
@@ -251,7 +254,7 @@
     font-family:var(--font-mono);
     font-size:13px;
     color:var(--ink);
-    background:#FBF7EE;
+    background:#F1F5FB;
     border:1px solid var(--rule);
     padding:6px 10px;
     border-radius:3px;
@@ -273,7 +276,7 @@
     width:266px;
     flex-shrink:0;
     background:var(--ink);
-    color:#E7E3D8;
+    color:#C7D4E8;
     display:flex;
     flex-direction:column;
     height:100vh;
@@ -314,7 +317,7 @@
     gap:11px;
     background:none;
     border:none;
-    color:#D8D3C4;
+    color:#C7D4E8;
     padding:10px 10px;
     border-radius:4px;
     font-size:13.5px;
@@ -336,7 +339,7 @@
   .nav-group-btn.open .nav-tab-letter, .nav-item.active .nav-tab-letter{
     background:var(--brass);
     border-color:var(--brass);
-    color:#1B2436;
+    color:#fff;
   }
   .nav-group-btn svg{flex-shrink:0;}
   .chev{margin-left:auto; transition:transform .18s; opacity:.65;}
@@ -355,7 +358,7 @@
     width:100%;
     background:none;
     border:none;
-    color:#B9B4A4;
+    color:#93A5C4;
     font-size:13px;
     text-align:left;
     padding:8px 10px 8px 14px;
@@ -366,7 +369,7 @@
   .nav-item:hover{color:#fff; background:rgba(255,255,255,0.04);}
   .nav-item.active{
     color:#fff;
-    background:rgba(184,134,58,0.16);
+    background:rgba(42,93,199,0.14);
     border-left:2px solid var(--brass);
     font-weight:600;
   }
@@ -376,23 +379,23 @@
   .nav-single{
     display:flex; align-items:center; gap:11px;
     width:100%; background:none; border:none;
-    color:#D8D3C4; padding:10px 10px; border-radius:4px;
+    color:#C7D4E8; padding:10px 10px; border-radius:4px;
     font-size:13.5px; text-align:left;
   }
   .nav-single:hover{background:var(--ink-2); color:#fff;}
-  .nav-single.active{color:#fff; background:rgba(184,134,58,0.16);}
+  .nav-single.active{color:#fff; background:rgba(42,93,199,0.14);}
   .sidebar-footer{
     padding:14px 16px 18px;
     border-top:1px solid var(--rule-dark);
   }
   .sidebar-user{
     display:flex; align-items:center; gap:10px;
-    font-size:12.5px; color:#C8C3B4;
+    font-size:12.5px; color:#AEBEDA;
     margin-bottom:10px;
   }
   .avatar{
     width:30px;height:30px;border-radius:50%;
-    background:var(--brass); color:#1B2436;
+    background:var(--brass); color:#fff;
     display:flex;align-items:center;justify-content:center;
     font-weight:700; font-size:12px; flex-shrink:0;
   }
@@ -472,10 +475,10 @@
     content:"";
     position:absolute; right:-40px; top:-40px;
     width:180px;height:180px;border-radius:50%;
-    background:radial-gradient(circle, rgba(184,134,58,0.35), transparent 70%);
+    background:radial-gradient(circle, rgba(42,93,199,0.30), transparent 70%);
   }
   .welcome-banner h1{font-family:var(--font-display); font-size:26px; margin:0 0 6px; position:relative;}
-  .welcome-banner p{margin:0; font-size:13.5px; color:#C8C3B4; position:relative;}
+  .welcome-banner p{margin:0; font-size:13.5px; color:#AEBEDA; position:relative;}
 
   .kpi-row{
     display:grid;
@@ -515,7 +518,7 @@
   .panel-sub{font-size:11.5px; color:var(--text-muted); margin:0 0 16px; padding-bottom:10px; border-bottom:1px solid var(--rule);}
   .bar-row{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
   .bar-label{width:150px; font-size:12px; color:var(--text-muted); flex-shrink:0;}
-  .bar-track{flex:1; background:#EFEAE0; border-radius:3px; height:10px; overflow:hidden;}
+  .bar-track{flex:1; background:#E3E9F3; border-radius:3px; height:10px; overflow:hidden;}
   .bar-fill{height:100%; background:linear-gradient(90deg,#3B7DDB,var(--brass)); border-radius:3px;}
   .bar-val{width:28px; text-align:right; font-family:var(--font-mono); font-size:11.5px; color:var(--text);}
   .activity-item{display:flex; gap:10px; padding:10px 0; border-bottom:1px solid var(--rule);}
@@ -549,7 +552,7 @@
   .status-chip{
     display:inline-flex; align-items:center; gap:6px;
     font-size:11px; letter-spacing:.04em; text-transform:uppercase;
-    background:#FBF3E4; color:var(--brass-dark); border:1px solid var(--brass-light);
+    background:#E7EFFC; color:var(--brass-dark); border:1px solid var(--brass-light);
     padding:5px 10px; border-radius:20px;
   }
   .status-chip .pulse{width:6px;height:6px;border-radius:50%; background:var(--brass); animation:pulse 1.6s infinite;}
@@ -565,18 +568,43 @@
   .fake-search{
     flex:1; min-width:160px; max-width:280px;
     border:1px solid var(--rule); border-radius:4px; padding:8px 12px;
-    font-size:12.5px; color:var(--text-muted); background:#FBF9F4;
+    font-size:12.5px; color:var(--text-muted); background:#F1F5FB;
   }
-  table.skeleton-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.skeleton-table{width:100%; border-collapse:collapse; font-size:12.5px; border:1px solid var(--rule);}
   table.skeleton-table th{
-    text-align:left; padding:14px 18px; background:#FAF7F0; color:var(--text-muted);
-    font-weight:600; letter-spacing:.03em; text-transform:uppercase; font-size:10.5px;
-    border-bottom:1px solid var(--rule);
+    text-align:left; padding:14px 18px;
+    background:linear-gradient(180deg, var(--ink-2), var(--ink));
+    color:#fff;
+    font-weight:600; letter-spacing:.05em; text-transform:uppercase; font-size:10.5px;
+    border:1px solid var(--ink);
   }
-  table.skeleton-table td{padding:16px 18px; border-bottom:1px solid var(--rule); vertical-align:middle;}
+  table.skeleton-table thead tr:first-child th:first-child{border-top-left-radius:6px;}
+  table.skeleton-table thead tr:first-child th:last-child{border-top-right-radius:6px;}
+  table.skeleton-table td{padding:16px 18px; border:1px solid var(--rule); vertical-align:middle;}
+  table.skeleton-table tbody tr:hover td{background:var(--brass-light);}
+
+  /* Pagination bar under data tables */
+  .pagination-bar{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    padding:12px 18px; border:1px solid var(--rule); border-top:none;
+  }
+  .pagination-info{font-size:12px; color:var(--text-muted);}
+  .pagination-controls{display:flex; align-items:center; gap:4px; flex-wrap:wrap;}
+  .page-btn{
+    min-width:30px; height:30px; padding:0 8px;
+    border:1px solid var(--rule); background:#fff; color:var(--text);
+    border-radius:4px; font-size:12.5px; font-weight:600;
+    display:inline-flex; align-items:center; justify-content:center;
+    transition:background .12s, color .12s, border-color .12s;
+  }
+  .page-btn:hover:not(:disabled){border-color:var(--brass); color:var(--brass-dark);}
+  .page-btn.active{background:var(--brass); border-color:var(--brass); color:#fff;}
+  .page-btn.nav{font-weight:500; padding:0 10px;}
+  .page-btn:disabled{opacity:.4; cursor:not-allowed;}
+  .page-ellipsis{padding:0 4px; color:var(--text-muted); font-size:12.5px;}
   .shimmer{
     display:inline-block; height:10px; border-radius:3px; width:100%;
-    background:linear-gradient(90deg,#EFEAE0 25%,#F6F3EC 37%,#EFEAE0 63%);
+    background:linear-gradient(90deg,#E3E9F3 25%,#EDF2F9 37%,#E3E9F3 63%);
     background-size:400% 100%;
     animation:shimmer 1.6s ease infinite;
   }
@@ -607,7 +635,7 @@
   #exitScreen.active{display:flex;}
   #exitScreen .box{max-width:380px;}
   #exitScreen h1{font-family:var(--font-display); font-size:28px; margin-bottom:10px;}
-  #exitScreen p{color:#C8C3B4; font-size:13.5px; margin-bottom:22px; line-height:1.6;}
+  #exitScreen p{color:#AEBEDA; font-size:13.5px; margin-bottom:22px; line-height:1.6;}
 
   /* Subscriber Master module */
   .sub-title-bar{
@@ -622,11 +650,11 @@
   .old-style-row label{width:120px; flex-shrink:0; font-size:12px; color:var(--text-muted);}
   .old-style-row input, .old-style-row select{
     flex:1; padding:7px 10px; border:1px solid var(--rule); border-radius:3px;
-    font-size:12.5px; background:#FCFBF8; color:var(--text);
+    font-size:12.5px; background:#F7FAFD; color:var(--text);
   }
-  .old-style-row input:disabled, .old-style-row select:disabled{background:#F1EEE6; color:var(--text-muted);}
+  .old-style-row input:disabled, .old-style-row select:disabled{background:#E7ECF4; color:var(--text-muted);}
   .old-style-row input:focus, .old-style-row select:focus{
-    outline:none; border-color:var(--brass); box-shadow:0 0 0 3px rgba(184,134,58,0.15);
+    outline:none; border-color:var(--brass); box-shadow:0 0 0 3px rgba(42,93,199,0.15);
   }
   .qty-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:6px;}
   @media(max-width:480px){ .qty-grid{grid-template-columns:repeat(2,1fr);} }
@@ -750,7 +778,7 @@
           <div style="font-size:11px;">Role: Owner</div>
         </div>
       </div>
-      <button class="btn btn-ghost" style="width:100%; color:#E7E3D8; border-color:rgba(255,255,255,0.2);" onclick="confirmLogout()">⎋ &nbsp;Logout</button>
+      <button class="btn btn-ghost" style="width:100%; color:#C7D4E8; border-color:rgba(255,255,255,0.2);" onclick="confirmLogout()">⎋ &nbsp;Logout</button>
     </div>
   </aside>
 
@@ -852,11 +880,11 @@ let state = {
   openGroup:'master',
   masters:{
     areas:[
-      { code:'ARE-A-0001', name:'Town Center', pincode:'636001', subAreas:['Main Bazaar','Bus Stand Road'] },
-      { code:'ARE-A-0002', name:'Railway Road', pincode:'636001', subAreas:['Station Colony','Gandhi Nagar'] },
-      { code:'ARE-A-0003', name:'College Street', pincode:'636002', subAreas:['Hostel Block','Staff Quarters'] },
-      { code:'ARE-A-0004', name:'Market Road', pincode:'636003', subAreas:['Old Market','New Market'] },
-      { code:'ARE-A-0005', name:'New Colony', pincode:'636004', subAreas:['Phase 1','Phase 2'] },
+      { code:'ARE 0001', name:'Town Center', pincode:'636001', subAreas:['Main Bazaar','Bus Stand Road'] },
+      { code:'ARE 0002', name:'Railway Road', pincode:'636001', subAreas:['Station Colony','Gandhi Nagar'] },
+      { code:'ARE 0003', name:'College Street', pincode:'636002', subAreas:['Hostel Block','Staff Quarters'] },
+      { code:'ARE 0004', name:'Market Road', pincode:'636003', subAreas:['Old Market','New Market'] },
+      { code:'ARE 0005', name:'New Colony', pincode:'636004', subAreas:['Phase 1','Phase 2'] },
     ],
     magazines:[
       { code:'MAG-001', name:'Weekly Digest', magType:'Weekly', shortName1:'WKDG', shortName2:'W.Digest', supplyStatus:'Supply', commission:10,
@@ -886,8 +914,8 @@ let state = {
       { code:'SUP-Y-0001', entryDate:'2020-07-24', name:'YOUNG WORLD', address1:'CHENNAI', address2:'', phone:'', gstin:'', items:[] },
     ],
     subDealers:[
-      { code:'DLR-0001', name:'Murugan Book Depot', areaCode:'ARE-A-0001', areaName:'Town Center', phone:'9843211001', creditLimit:5000 },
-      { code:'DLR-0002', name:'Sri Lakshmi Agencies', areaCode:'ARE-A-0002', areaName:'Railway Road', phone:'9843211002', creditLimit:8000 },
+      { code:'DLR-0001', name:'Murugan Book Depot', areaCode:'ARE 0001', areaName:'Town Center', phone:'9843211001', creditLimit:5000 },
+      { code:'DLR-0002', name:'Sri Lakshmi Agencies', areaCode:'ARE 0002', areaName:'Railway Road', phone:'9843211002', creditLimit:8000 },
     ],
     stalls:[
       { code:'STL-0001', name:'Bus Stand Stall', location:'Bus Stand Road, Town Center', vendor:'K. Ramesh' },
@@ -896,8 +924,8 @@ let state = {
   },
   subscribers:[
     {
-      id:'SUB-1001', entryDate:'2026-06-12', partyCode:'SUB-1001', partyName:'R. Kumar',
-      areaCode:'ARE-A-0002', areaName:'Railway Road', subAreaName:'Station Colony', activeState:'YES',
+      id:'CUS 001', entryDate:'2026-06-12', partyCode:'CUS 001', partyName:'R. Kumar',
+      areaCode:'ARE 0002', areaName:'Railway Road', subAreaName:'Station Colony', activeState:'YES',
       address1:'12, Station Road', address2:'Near Bus Stop', pincode:'636001', phone:'9843210001',
       serviceCharge:20, paymentMode:'Cash', deposit:200, openBalance:0, doorNo:'12', startDate:'2026-06-12', endDate:'',
       items:[
@@ -906,8 +934,8 @@ let state = {
       ]
     },
     {
-      id:'SUB-1002', entryDate:'2026-07-02', partyCode:'SUB-1002', partyName:'S. Priya',
-      areaCode:'ARE-A-0003', areaName:'College Street', subAreaName:'Hostel Block', activeState:'YES',
+      id:'CUS 002', entryDate:'2026-07-02', partyCode:'CUS 002', partyName:'S. Priya',
+      areaCode:'ARE 0003', areaName:'College Street', subAreaName:'Hostel Block', activeState:'YES',
       address1:'Room 14, Ladies Hostel', address2:'', pincode:'636002', phone:'9843210002',
       serviceCharge:10, paymentMode:'UPI', deposit:100, openBalance:150, doorNo:'14', startDate:'2026-07-02', endDate:'',
       items:[
@@ -915,18 +943,18 @@ let state = {
       ]
     }
   ],
-  subUI:{ view:'list', editingId:null, search:'', readonly:false },
-  magUI:{ view:'list', editingId:null, search:'', readonly:false },
-  areaUI:{ view:'list', editingId:null, search:'', readonly:false },
-  supUI:{ view:'list', editingId:null, search:'', readonly:false },
-  subdealerUI:{ view:'list', editingId:null, search:'', readonly:false },
-  stallUI:{ view:'list', editingId:null, search:'', readonly:false },
+  subUI:{ view:'list', editingId:null, search:'', readonly:false, page:1 },
+  magUI:{ view:'list', editingId:null, search:'', readonly:false, page:1 },
+  areaUI:{ view:'list', editingId:null, search:'', readonly:false, page:1 },
+  supUI:{ view:'list', editingId:null, search:'', readonly:false, page:1 },
+  subdealerUI:{ view:'list', editingId:null, search:'', readonly:false, page:1 },
+  stallUI:{ view:'list', editingId:null, search:'', readonly:false, page:1 },
   purchases:[],
   sales:[],
   bills:[],
   purchUI:{ date: todayISO(), view:'entry' },
   salesUI:{ date: todayISO(), customerType:'Subscriber', view:'entry' },
-  billUI:{ view:'entry', customerType:'Subscriber', collBoyCode:'', paymentMode:'Monthly', startCode:'', endCode:'', startDate: todayISO(), endDate: todayISO(), selected:[] },
+  billUI:{ view:'entry', customerType:'Subscriber', collBoyCode:'', paymentMode:'Monthly', areaCode:'', startCode:'', endCode:'', startDate: todayISO(), endDate: todayISO(), selected:[], viewingBillNo:null },
   reportUI:{},
   currentUser:{ username:'', role:'Administrator', loginTime:'' },
   utilUI:{ searchType:'All', searchKeyword:'' },
@@ -937,7 +965,7 @@ let state = {
   receipts:[],
   counterUI:{ date: todayISO(), view:'entry' },
   despatchUI:{ date: todayISO(), search:'' },
-  unsoldUI:{ view:'list', editingId:null, search:'' },
+  unsoldUI:{ view:'list', editingId:null, search:'', page:1 },
   collUI:{ view:'entry', partyCode:'', mode:'Cash', date: todayISO(), search:'', selectedBills:[] }
 };
 
@@ -955,6 +983,44 @@ let salesDraft = null; // working array of item rows for the current Sales Posti
 let billDraft = null;  // working array of prepared bill lines for Sales Bill
 let counterDraft = null; // working array of item rows for Counter Sales entry
 let unsoldDraft = null;  // working copy of the unsold-return record being added/edited
+
+/* ============================================================
+   PAGINATION (generic helper used by all master list tables)
+   ============================================================ */
+const PAGE_SIZE = 10;
+
+function paginateSlice(list, page){
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  const safePage = Math.min(Math.max(1, page||1), totalPages);
+  const start = (safePage-1) * PAGE_SIZE;
+  return { pageItems: list.slice(start, start+PAGE_SIZE), totalPages, safePage };
+}
+
+function renderPaginationBar(containerId, totalItems, currentPage, totalPages, onPageChangeFn){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  if(totalItems===0 || totalPages<=1){ el.innerHTML=''; return; }
+  const start = (currentPage-1)*PAGE_SIZE + 1;
+  const end = Math.min(currentPage*PAGE_SIZE, totalItems);
+  const maxButtons = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxButtons/2));
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+  startPage = Math.max(1, endPage - maxButtons + 1);
+  let pageBtns = '';
+  for(let p=startPage; p<=endPage; p++){
+    pageBtns += `<button class="page-btn${p===currentPage?' active':''}" onclick="${onPageChangeFn}(${p})">${p}</button>`;
+  }
+  el.innerHTML = `
+    <div class="pagination-info">Showing ${start}–${end} of ${totalItems}</div>
+    <div class="pagination-controls">
+      <button class="page-btn nav" ${currentPage<=1?'disabled':''} onclick="${onPageChangeFn}(${currentPage-1})">‹ Prev</button>
+      ${startPage>1?`<button class="page-btn" onclick="${onPageChangeFn}(1)">1</button>${startPage>2?'<span class="page-ellipsis">…</span>':''}`:''}
+      ${pageBtns}
+      ${endPage<totalPages?`${endPage<totalPages-1?'<span class="page-ellipsis">…</span>':''}<button class="page-btn" onclick="${onPageChangeFn}(${totalPages})">${totalPages}</button>`:''}
+      <button class="page-btn nav" ${currentPage>=totalPages?'disabled':''} onclick="${onPageChangeFn}(${currentPage+1})">Next ›</button>
+    </div>
+  `;
+}
 
 /* ============================================================
    LOGIN
@@ -1370,6 +1436,30 @@ function esc(v){
 }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function blankItemDraft(){ return { magazineCode:'', magazineName:'', salesState:'YES', qty:{sun:0,mon:0,tue:0,wed:0,thu:0,fri:0,sat:0} }; }
+function blankHoldDraft(){ return { startDate: todayISO(), endDate: todayISO(), reason:'' }; }
+let holdDraft = null;
+
+function updateHoldDraft(field,value){ if(holdDraft) holdDraft[field]=value; }
+
+function addHoldToList(){
+  if(!holdDraft.startDate || !holdDraft.endDate){ alert('Please set both a Hold From and Hold To date.'); return; }
+  if(holdDraft.endDate < holdDraft.startDate){ alert('Hold To date cannot be before Hold From date.'); return; }
+  if(!subDraft.holds){ subDraft.holds = []; }
+  subDraft.holds.push({ id:'HLD-'+Date.now(), startDate:holdDraft.startDate, endDate:holdDraft.endDate, reason:holdDraft.reason });
+  holdDraft = blankHoldDraft();
+  renderSubscriberModule();
+}
+function removeHoldFromList(holdId){
+  subDraft.holds = (subDraft.holds||[]).filter(h=>h.id!==holdId);
+  renderSubscriberModule();
+}
+
+// Returns true if dateStr (YYYY-MM-DD) falls inside any of the subscriber's hold periods,
+// meaning no copy should be posted, despatched, or billed for that date.
+function isDateOnHold(sub, dateStr){
+  if(!sub || !sub.holds || !sub.holds.length) return false;
+  return sub.holds.some(h=> dateStr >= h.startDate && dateStr <= h.endDate);
+}
 
 function renderSubscriberModule(){
   const content = document.getElementById('content');
@@ -1399,6 +1489,7 @@ function subscriberListHTML(){
         </tr></thead>
         <tbody id="subTableBody"></tbody>
       </table>
+      <div class="pagination-bar" id="subPagination"></div>
     </div>
   `;
 }
@@ -1415,9 +1506,12 @@ function renderSubscriberTableBody(){
   if(!tbody) return;
   if(list.length===0){
     tbody.innerHTML = `<tr><td colspan="8"><div class="empty-note"><b>No subscribers found</b>Try a different search, or add a new subscriber.</div></td></tr>`;
+    document.getElementById('subPagination').innerHTML='';
     return;
   }
-  tbody.innerHTML = list.map(s=>`
+  const { pageItems, totalPages, safePage } = paginateSlice(list, state.subUI.page);
+  state.subUI.page = safePage;
+  tbody.innerHTML = pageItems.map(s=>`
     <tr>
       <td style="font-family:var(--font-mono);">${esc(s.partyCode)}</td>
       <td>${esc(s.partyName)}</td>
@@ -1425,7 +1519,7 @@ function renderSubscriberTableBody(){
       <td>${esc(s.subAreaName)||'—'}</td>
       <td>${esc(s.phone)||'—'}</td>
       <td>${s.items.length} title${s.items.length===1?'':'s'}</td>
-      <td>${s.activeState==='YES' ? '<span style="color:var(--success);font-weight:600;">Active</span>' : '<span style="color:var(--danger);">Inactive</span>'}</td>
+      <td>${s.activeState==='YES' ? '<span style="color:var(--success);font-weight:600;">Active</span>' : '<span style="color:var(--danger);">Inactive</span>'}${isDateOnHold(s, todayISO()) ? ' <span style="color:#B8860B;font-weight:600;">· On Hold</span>' : ''}</td>
       <td style="text-align:right; white-space:nowrap;">
         <button class="row-action-btn" title="View" onclick="openSubscriberForm('${s.id}', true)">View</button>
         <button class="row-action-btn" title="Edit" onclick="openSubscriberForm('${s.id}')">Edit</button>
@@ -1433,9 +1527,12 @@ function renderSubscriberTableBody(){
       </td>
     </tr>
   `).join('');
+  renderPaginationBar('subPagination', list.length, state.subUI.page, totalPages, 'goToSubPage');
 }
 
-function updateSubscriberSearch(v){ state.subUI.search=v; renderSubscriberTableBody(); }
+function goToSubPage(p){ state.subUI.page = p; renderSubscriberTableBody(); }
+
+function updateSubscriberSearch(v){ state.subUI.search=v; state.subUI.page=1; renderSubscriberTableBody(); }
 
 function openSubscriberForm(id, readonly){
   state.subUI.view='form';
@@ -1444,22 +1541,24 @@ function openSubscriberForm(id, readonly){
   if(id){
     const rec = state.subscribers.find(s=>s.id===id);
     subDraft = JSON.parse(JSON.stringify(rec));
+    if(!subDraft.holds){ subDraft.holds = []; }
   } else {
-    const nextNum = 1001 + state.subscribers.length;
+    const nextNum = 1 + state.subscribers.length;
     subDraft = {
-      id:null, entryDate: todayISO(), partyCode:'SUB-'+nextNum, partyName:'',
+      id:null, entryDate: todayISO(), partyCode:'CUS '+String(nextNum).padStart(3,'0'), partyName:'',
       areaCode:'', areaName:'', subAreaName:'', activeState:'YES',
       address1:'', address2:'', pincode:'', phone:'', serviceCharge:0,
-      paymentMode:'Cash', deposit:0, openBalance:0, doorNo:'', startDate: todayISO(), endDate:'', items:[]
+      paymentMode:'Cash', deposit:0, openBalance:0, doorNo:'', startDate: todayISO(), endDate:'', items:[], holds:[]
     };
   }
   itemDraft = blankItemDraft();
+  holdDraft = blankHoldDraft();
   renderSubscriberModule();
 }
 
 function closeSubscriberForm(){
   state.subUI.view='list'; state.subUI.editingId=null; state.subUI.readonly=false;
-  subDraft=null; itemDraft=null;
+  subDraft=null; itemDraft=null; holdDraft=null;
   renderSubscriberModule();
 }
 
@@ -1546,6 +1645,14 @@ function subscriberFormHTML(){
     </tr>`;
   }).join('') : `<tr><td colspan="5"><div class="empty-note" style="padding:18px;"><b>No magazines added yet</b>Select a magazine on the right and click “Add Item”.</div></td></tr>`;
 
+  const holds = d.holds || [];
+  const holdsRows = holds.length ? holds.map(h=>`<tr>
+      <td>${formatDateDisplay(h.startDate)}</td>
+      <td>${formatDateDisplay(h.endDate)}</td>
+      <td>${esc(h.reason)||'—'}</td>
+      <td style="text-align:right;">${ro ? '' : `<button class="icon-btn" title="Remove" onclick="removeHoldFromList('${h.id}')">✕</button>`}</td>
+    </tr>`).join('') : `<tr><td colspan="4"><div class="empty-note" style="padding:18px;"><b>No hold periods</b>Copies are delivered on every scheduled day. Add a Hold From/To date below to skip a range (e.g. a customer's travel dates).</div></td></tr>`;
+
   return `
     <div class="breadcrumb">Master <b>›</b> Subscriber Entry <b>›</b> ${d.id ? (ro?'View':'Edit') : 'New'}</div>
     <div class="sub-title-bar">Subscriber Master</div>
@@ -1603,6 +1710,24 @@ function subscriberFormHTML(){
           <tbody>${itemsRows}</tbody>
         </table>
       </div>
+
+      <div class="card">
+        <h3 class="panel-title">Hold / Resume Periods</h3>
+        <p style="font-size:11.5px; color:var(--text-muted); margin:-4px 0 12px;">Use this when a customer stops copies for a stretch and resumes later (e.g. travel, temporary cancellation). Sales Posting, Despatch Chart and Sales Bill will all skip these dates automatically.</p>
+        ${ro ? '' : `
+        <div class="old-style-row"><label>Hold From</label><input type="date" value="${esc(holdDraft.startDate)}" oninput="updateHoldDraft('startDate',this.value)"></div>
+        <div class="old-style-row"><label>Hold To</label><input type="date" value="${esc(holdDraft.endDate)}" oninput="updateHoldDraft('endDate',this.value)"></div>
+        <div class="old-style-row"><label>Reason</label><input type="text" value="${esc(holdDraft.reason)}" placeholder="Optional — e.g. Travel" oninput="updateHoldDraft('reason',this.value)"></div>
+        <div style="display:flex; gap:8px; margin:14px 0 4px;">
+          <button class="btn btn-brass" onclick="addHoldToList()">+ Add Hold Period</button>
+        </div>
+        <hr class="rule" style="margin:16px 0;">
+        `}
+        <table class="skeleton-table" style="font-size:12px;">
+          <thead><tr><th>Hold From</th><th>Hold To</th><th>Reason</th><th></th></tr></thead>
+          <tbody>${holdsRows}</tbody>
+        </table>
+      </div>
     </div>
 
     <div class="form-actions" style="margin-top:20px;">
@@ -1625,7 +1750,7 @@ function blankMagDraft(){
   const nextNum = 1 + state.masters.magazines.length;
   return {
     code:'MAG-'+String(nextNum).padStart(3,'0'), name:'', magType:'Daily',
-    shortName1:'', shortName2:'', supplyStatus:'Supply', commission:0,
+    shortName1:'', shortName2:'', supplyStatus:'Supply', commission:0, rounded:'No',
     rates:{sun:0,mon:0,tue:0,wed:0,thu:0,fri:0,sat:0}
   };
 }
@@ -1650,10 +1775,11 @@ function magazineListHTML(){
       </div>
       <table class="skeleton-table">
         <thead><tr>
-          <th>Magazine Code</th><th>Magazine Name</th><th>Type</th><th>Supply Status</th><th>Commission</th><th>Purchased</th><th>Sold</th><th style="text-align:right;">Actions</th>
+          <th>Magazine Code</th><th>Magazine Name</th><th>Type</th><th>Supply Status</th><th>Commission</th><th>Rounded</th><th>Purchased</th><th>Sold</th><th style="text-align:right;">Actions</th>
         </tr></thead>
         <tbody id="magTableBody"></tbody>
       </table>
+      <div class="pagination-bar" id="magPagination"></div>
       <p style="font-size:11px; color:var(--text-muted); margin-top:10px;">Purchased and Sold totals update live from every Purchase Posting and Sales Posting entry.</p>
     </div>
   `;
@@ -1670,10 +1796,13 @@ function renderMagazineTableBody(){
   if(count) count.textContent = `${list.length} magazine${list.length===1?'':'s'}`;
   if(!tbody) return;
   if(list.length===0){
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-note"><b>No magazines found</b>Try a different search, or add a new magazine.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-note"><b>No magazines found</b>Try a different search, or add a new magazine.</div></td></tr>`;
+    document.getElementById('magPagination').innerHTML='';
     return;
   }
-  tbody.innerHTML = list.map(m=>{
+  const { pageItems, totalPages, safePage } = paginateSlice(list, state.magUI.page);
+  state.magUI.page = safePage;
+  tbody.innerHTML = pageItems.map(m=>{
     const stats = magazineStockStats(m.code);
     return `
     <tr>
@@ -1682,6 +1811,7 @@ function renderMagazineTableBody(){
       <td>${esc(m.magType)}</td>
       <td>${esc(m.supplyStatus)}</td>
       <td>${Number(m.commission||0).toFixed(2)}</td>
+      <td>${m.rounded==='Yes' ? '✓ Yes' : 'No'}</td>
       <td>${stats.purchased}</td>
       <td>${stats.sold}</td>
       <td style="text-align:right; white-space:nowrap;">
@@ -1691,9 +1821,12 @@ function renderMagazineTableBody(){
       </td>
     </tr>
   `;}).join('');
+  renderPaginationBar('magPagination', list.length, state.magUI.page, totalPages, 'goToMagPage');
 }
 
-function updateMagazineSearch(v){ state.magUI.search=v; renderMagazineTableBody(); }
+function goToMagPage(p){ state.magUI.page = p; renderMagazineTableBody(); }
+
+function updateMagazineSearch(v){ state.magUI.search=v; state.magUI.page=1; renderMagazineTableBody(); }
 
 function openMagazineForm(code, readonly){
   state.magUI.view='form';
@@ -1703,6 +1836,7 @@ function openMagazineForm(code, readonly){
     const rec = state.masters.magazines.find(m=>m.code===code);
     magDraft = JSON.parse(JSON.stringify(rec));
     if(magDraft.commission===undefined || magDraft.commission===null || magDraft.commission===''){ magDraft.commission = 0; }
+    if(magDraft.rounded===undefined || magDraft.rounded===null || magDraft.rounded===''){ magDraft.rounded = 'No'; }
   } else {
     magDraft = blankMagDraft();
   }
@@ -1755,6 +1889,9 @@ function magazineFormHTML(){
   const supplyOptions = ['Supply','Direct'].map(s=>
     `<option value="${s}" ${d.supplyStatus===s?'selected':''}>${s}</option>`
   ).join('');
+  const roundedOptions = ['No','Yes'].map(r=>
+    `<option value="${r}" ${d.rounded===r?'selected':''}>${r}</option>`
+  ).join('');
   const daysA = ['sun','mon','tue','wed'];
   const daysB = ['thu','fri','sat'];
   const dayLabel = { sun:'Sun Rate', mon:'Mon Rate', tue:'Tue Rate', wed:'Wed Rate', thu:'Thu Rate', fri:'Fri Rate', sat:'Sat Rate' };
@@ -1773,6 +1910,7 @@ function magazineFormHTML(){
         <div class="old-style-row"><label>Short Name 2</label><input type="text" value="${esc(d.shortName2)}" ${dis} oninput="updateMagDraft('shortName2',this.value)"></div>
         <div class="old-style-row"><label>Supply Status</label><select ${dis} onchange="updateMagDraft('supplyStatus',this.value)">${supplyOptions}</select></div>
         <div class="old-style-row"><label>Commission</label><input type="number" step="0.01" value="${d.commission||0}" ${dis} oninput="updateMagDraftNum('commission',this.value)"></div>
+        <div class="old-style-row"><label>Rounded</label><select ${dis} onchange="updateMagDraft('rounded',this.value)">${roundedOptions}</select></div>
       </div>
 
       <div class="card">
@@ -1829,7 +1967,7 @@ function magazineStockSummaryCardHTML(code){
    ============================================================ */
 function blankAreaDraft(){
   const nextNum = 1 + state.masters.areas.length;
-  return { code:'ARE-A-'+String(nextNum).padStart(4,'0'), name:'', pincode:'', subAreas:[] };
+  return { code:'ARE '+String(nextNum).padStart(4,'0'), name:'', pincode:'', subAreas:[] };
 }
 
 function renderAreaModule(){
@@ -1856,6 +1994,7 @@ function areaListHTML(){
         </tr></thead>
         <tbody id="areaTableBody"></tbody>
       </table>
+      <div class="pagination-bar" id="areaPagination"></div>
     </div>
   `;
 }
@@ -1872,9 +2011,12 @@ function renderAreaTableBody(){
   if(!tbody) return;
   if(list.length===0){
     tbody.innerHTML = `<tr><td colspan="5"><div class="empty-note"><b>No areas found</b>Try a different search, or add a new area.</div></td></tr>`;
+    document.getElementById('areaPagination').innerHTML='';
     return;
   }
-  tbody.innerHTML = list.map(a=>`
+  const { pageItems, totalPages, safePage } = paginateSlice(list, state.areaUI.page);
+  state.areaUI.page = safePage;
+  tbody.innerHTML = pageItems.map(a=>`
     <tr>
       <td style="font-family:var(--font-mono);">${esc(a.code)}</td>
       <td>${esc(a.name)}</td>
@@ -1887,9 +2029,12 @@ function renderAreaTableBody(){
       </td>
     </tr>
   `).join('');
+  renderPaginationBar('areaPagination', list.length, state.areaUI.page, totalPages, 'goToAreaPage');
 }
 
-function updateAreaSearch(v){ state.areaUI.search=v; renderAreaTableBody(); }
+function goToAreaPage(p){ state.areaUI.page = p; renderAreaTableBody(); }
+
+function updateAreaSearch(v){ state.areaUI.search=v; state.areaUI.page=1; renderAreaTableBody(); }
 
 function openAreaForm(code, readonly){
   state.areaUI.view='form';
@@ -2047,6 +2192,7 @@ function supplierListHTML(){
         </tr></thead>
         <tbody id="supTableBody"></tbody>
       </table>
+      <div class="pagination-bar" id="supPagination"></div>
     </div>
   `;
 }
@@ -2063,9 +2209,12 @@ function renderSupplierTableBody(){
   if(!tbody) return;
   if(list.length===0){
     tbody.innerHTML = `<tr><td colspan="6"><div class="empty-note"><b>No suppliers found</b>Try a different search, or add a new supplier.</div></td></tr>`;
+    document.getElementById('supPagination').innerHTML='';
     return;
   }
-  tbody.innerHTML = list.map(s=>`
+  const { pageItems, totalPages, safePage } = paginateSlice(list, state.supUI.page);
+  state.supUI.page = safePage;
+  tbody.innerHTML = pageItems.map(s=>`
     <tr>
       <td style="font-family:var(--font-mono);">${esc(s.entryDate)}</td>
       <td style="font-family:var(--font-mono);">${esc(s.code)}</td>
@@ -2079,9 +2228,12 @@ function renderSupplierTableBody(){
       </td>
     </tr>
   `).join('');
+  renderPaginationBar('supPagination', list.length, state.supUI.page, totalPages, 'goToSupPage');
 }
 
-function updateSupplierSearch(v){ state.supUI.search=v; renderSupplierTableBody(); }
+function goToSupPage(p){ state.supUI.page = p; renderSupplierTableBody(); }
+
+function updateSupplierSearch(v){ state.supUI.search=v; state.supUI.page=1; renderSupplierTableBody(); }
 
 function openSupplierForm(code, readonly){
   state.supUI.view='form';
@@ -2252,6 +2404,7 @@ function subDealerListHTML(){
         </tr></thead>
         <tbody id="subDealerTableBody"></tbody>
       </table>
+      <div class="pagination-bar" id="subDealerPagination"></div>
     </div>
   `;
 }
@@ -2268,9 +2421,12 @@ function renderSubDealerTableBody(){
   if(!tbody) return;
   if(list.length===0){
     tbody.innerHTML = `<tr><td colspan="6"><div class="empty-note"><b>No sub-dealers found</b>Try a different search, or add a new sub-dealer.</div></td></tr>`;
+    document.getElementById('subDealerPagination').innerHTML='';
     return;
   }
-  tbody.innerHTML = list.map(d=>`
+  const { pageItems, totalPages, safePage } = paginateSlice(list, state.subdealerUI.page);
+  state.subdealerUI.page = safePage;
+  tbody.innerHTML = pageItems.map(d=>`
     <tr>
       <td style="font-family:var(--font-mono);">${esc(d.code)}</td>
       <td>${esc(d.name)}</td>
@@ -2284,9 +2440,12 @@ function renderSubDealerTableBody(){
       </td>
     </tr>
   `).join('');
+  renderPaginationBar('subDealerPagination', list.length, state.subdealerUI.page, totalPages, 'goToSubDealerPage');
 }
 
-function updateSubDealerSearch(v){ state.subdealerUI.search=v; renderSubDealerTableBody(); }
+function goToSubDealerPage(p){ state.subdealerUI.page = p; renderSubDealerTableBody(); }
+
+function updateSubDealerSearch(v){ state.subdealerUI.search=v; state.subdealerUI.page=1; renderSubDealerTableBody(); }
 
 function openSubDealerForm(code, readonly){
   state.subdealerUI.view='form';
@@ -2412,6 +2571,7 @@ function stallListHTML(){
         </tr></thead>
         <tbody id="stallTableBody"></tbody>
       </table>
+      <div class="pagination-bar" id="stallPagination"></div>
     </div>
   `;
 }
@@ -2428,9 +2588,12 @@ function renderStallTableBody(){
   if(!tbody) return;
   if(list.length===0){
     tbody.innerHTML = `<tr><td colspan="5"><div class="empty-note"><b>No stalls found</b>Try a different search, or add a new stall.</div></td></tr>`;
+    document.getElementById('stallPagination').innerHTML='';
     return;
   }
-  tbody.innerHTML = list.map(s=>`
+  const { pageItems, totalPages, safePage } = paginateSlice(list, state.stallUI.page);
+  state.stallUI.page = safePage;
+  tbody.innerHTML = pageItems.map(s=>`
     <tr>
       <td style="font-family:var(--font-mono);">${esc(s.code)}</td>
       <td>${esc(s.name)}</td>
@@ -2443,9 +2606,12 @@ function renderStallTableBody(){
       </td>
     </tr>
   `).join('');
+  renderPaginationBar('stallPagination', list.length, state.stallUI.page, totalPages, 'goToStallPage');
 }
 
-function updateStallSearch(v){ state.stallUI.search=v; renderStallTableBody(); }
+function goToStallPage(p){ state.stallUI.page = p; renderStallTableBody(); }
+
+function updateStallSearch(v){ state.stallUI.search=v; state.stallUI.page=1; renderStallTableBody(); }
 
 function openStallForm(code, readonly){
   state.stallUI.view='form';
@@ -2618,7 +2784,7 @@ function purchaseEntryHTML(){
     let groupQty = 0, groupAmt = 0;
     const flushGroup = ()=>{
       if(lastSupplier!==null){
-        rows += `<tr style="background:#FBF7EE;"><td colspan="2" style="text-align:right; font-weight:600;">Subtotal — ${esc(lastSupplier)}</td><td style="font-weight:600;">${groupQty}</td><td></td><td style="font-weight:600;">${groupAmt.toFixed(2)}</td></tr>`;
+        rows += `<tr style="background:#F1F5FB;"><td colspan="2" style="text-align:right; font-weight:600;">Subtotal — ${esc(lastSupplier)}</td><td style="font-weight:600;">${groupQty}</td><td></td><td style="font-weight:600;">${groupAmt.toFixed(2)}</td></tr>`;
       }
     };
     purchDraft.forEach((it,idx)=>{
@@ -2778,6 +2944,7 @@ function buildSalesDraft(date, customerType){
   const day = weekdayKeyForDate(date);
   const rows = [];
   state.subscribers.filter(s=>s.activeState==='YES').forEach(s=>{
+    if(isDateOnHold(s, date)) return; // subscriber is on hold for this date, so no copy is posted
     s.items.forEach(it=>{
       const qty = Number(it.qty[day]||0);
       if(qty>0){
@@ -3000,17 +3167,73 @@ function dateRangeArray(startDate, endDate){
 function computeSubscriberBillAmount(sub, dates){
   let amount = 0;
   dates.forEach(dt=>{
+    if(isDateOnHold(sub, dt)) return; // no copies delivered on a held date, so no charge
     const day = weekdayKeyForDate(dt);
     sub.items.forEach(it=>{
       const qty = Number(it.qty[day]||0);
       if(qty>0){
         const mag = state.masters.magazines.find(m=>m.code===it.magazineCode);
         const rate = mag && mag.rates ? Number(mag.rates[day]||0) : 0;
-        amount += qty*rate;
+        let lineAmount = qty*rate;
+        if(mag && mag.rounded==='Yes'){ lineAmount = Math.round(lineAmount); }
+        amount += lineAmount;
       }
     });
   });
   return amount;
+}
+
+// Per-magazine copy count + value across a date range, for the printable
+// ledger-style bill (S.No / Magazine Name / No. of Qty / Value).
+function computeSubscriberMagazineBreakdown(sub, dates){
+  const byMag = {}; // magazineCode -> { magazineName, qty, value }
+  dates.forEach(dt=>{
+    if(isDateOnHold(sub, dt)) return;
+    const day = weekdayKeyForDate(dt);
+    sub.items.forEach(it=>{
+      const qty = Number(it.qty[day]||0);
+      if(qty>0){
+        const mag = state.masters.magazines.find(m=>m.code===it.magazineCode);
+        const rate = mag && mag.rates ? Number(mag.rates[day]||0) : 0;
+        let lineAmount = qty*rate;
+        if(mag && mag.rounded==='Yes'){ lineAmount = Math.round(lineAmount); }
+        if(!byMag[it.magazineCode]){
+          byMag[it.magazineCode] = { magazineName: it.magazineName, qty:0, value:0 };
+        }
+        byMag[it.magazineCode].qty += qty;
+        byMag[it.magazineCode].value += lineAmount;
+      }
+    });
+  });
+  return Object.values(byMag);
+}
+
+function coreNameForCode(partyName){
+  const name = (partyName||'').trim();
+  // Drop a leading single-letter initial like "S." or "R." so the code
+  // is built from the main/surname part of the name, not the initial.
+  const stripped = name.replace(/^[A-Za-z]\.\s*/, '');
+  return stripped || name;
+}
+
+function splitCodeParts(code){
+  // e.g. "CUS 001" -> {alpha:'CUS', numeric:'001'}, "ARE 0001" -> {alpha:'ARE', numeric:'0001'}
+  const m = (code||'').trim().match(/^([A-Za-z]+)\s*(\d+)$/);
+  if(m) return { alpha:m[1], numeric:m[2] };
+  return { alpha:(code||'').trim(), numeric:'' };
+}
+
+function subscriberBillCode(s){
+  const parts = splitCodeParts(s.partyCode);
+  const core = coreNameForCode(s.partyName);
+  const initial = core.charAt(0).toUpperCase() || '#';
+  return `${parts.alpha}-${initial}-${parts.numeric}`;
+}
+
+function areaBillCode(areaCode, areaName){
+  const parts = splitCodeParts(areaCode);
+  const initial = (areaName||'').trim().charAt(0).toUpperCase() || '#';
+  return `${parts.alpha}-${initial}-${parts.numeric}`;
 }
 
 function prepareBillDraft(){
@@ -3021,8 +3244,9 @@ function prepareBillDraft(){
   const end = (f.endCode||'').trim().toLowerCase();
   return state.subscribers
     .filter(s=>s.activeState==='YES')
+    .filter(s=> !f.areaCode || areaBillCode(s.areaCode, s.areaName)===f.areaCode)
     .filter(s=>{
-      const code = s.partyCode.toLowerCase();
+      const code = subscriberBillCode(s).toLowerCase();
       if(start && code<start) return false;
       if(end && code>end) return false;
       return true;
@@ -3032,10 +3256,12 @@ function prepareBillDraft(){
       const serviceCharge = Number(s.serviceCharge||0); // folded into the total, never shown as its own line on the bill/invoice
       const openBalance = Number(s.openBalance||0);
       const amount = Math.round(deliveryAmount + serviceCharge + openBalance);
+      const breakdown = computeSubscriberMagazineBreakdown(s, dates);
       return {
-        partyCode:s.partyCode, partyName:s.partyName, areaName:s.areaName,
+        partyCode:s.partyCode, partyName:s.partyName, areaCode:s.areaCode, areaName:s.areaName,
+        subAreaName:s.subAreaName, address1:s.address1, address2:s.address2, doorNo:s.doorNo, pincode:s.pincode,
         periodStart:f.startDate, periodEnd:f.endDate, paymentMode:f.paymentMode,
-        deliveryAmount, serviceCharge, openBalance, amount, status:'Pending'
+        deliveryAmount, serviceCharge, openBalance, deposit:Number(s.deposit||0), breakdown, amount, status:'Pending'
       };
     })
     .filter(row=>row.amount>0);
@@ -3045,18 +3271,21 @@ function renderBillModule(){
   const content = document.getElementById('content');
   if(state.billUI.view==='status'){ content.innerHTML = billStatusHTML(); return; }
   if(state.billUI.view==='outstanding'){ content.innerHTML = billOutstandingHTML(); return; }
+  if(state.billUI.view==='detail'){ content.innerHTML = billDetailHTML(); return; }
   content.innerHTML = billEntryHTML();
 }
 
-function subscriberCodeOptions(selected){
+function subscriberCodeOptions(selected, areaCode){
   const list = state.subscribers
     .filter(s=>s.activeState==='YES')
+    .filter(s=> !areaCode || areaBillCode(s.areaCode, s.areaName)===areaCode)
     .slice()
-    .sort((a,b)=>String(a.partyCode).localeCompare(String(b.partyCode)));
+    .sort((a,b)=>subscriberBillCode(a).localeCompare(subscriberBillCode(b)));
   const blank = `<option value="" ${!selected?'selected':''}>-- Select --</option>`;
   const opts = list.map(s=>{
-    const label = `${s.partyCode} || ${s.partyName}`;
-    return `<option value="${esc(s.partyCode)}" ${selected===s.partyCode?'selected':''}>${esc(label)}</option>`;
+    const code = subscriberBillCode(s);
+    const label = `${code} || ${s.partyName}`;
+    return `<option value="${esc(code)}" ${selected===code?'selected':''}>${esc(label)}</option>`;
   }).join('');
   return blank + opts;
 }
@@ -3069,11 +3298,16 @@ function billEntryHTML(){
   const pmOptions = ['Monthly','Quarterly','Half-Yearly','Yearly'].map(p=>
     `<option value="${p}" ${f.paymentMode===p?'selected':''}>${p.toUpperCase()}</option>`
   ).join('');
+  const areaOptions = `<option value="" ${!f.areaCode?'selected':''}>-- All Areas --</option>` + state.masters.areas.map(a=>{
+    const code = areaBillCode(a.code, a.name);
+    return `<option value="${esc(code)}" ${f.areaCode===code?'selected':''}>${esc(code)} || ${esc(a.name)}</option>`;
+  }).join('');
 
   const rows = billDraft ? billDraft.map(r=>`
     <tr>
       <td style="font-family:var(--font-mono);">${esc(r.partyCode)}</td>
       <td>${esc(r.partyName)}</td>
+      <td style="font-family:var(--font-mono);">${esc(areaBillCode(r.areaCode, r.areaName))}</td>
       <td>${esc(r.areaName)}</td>
       <td>${Number(r.deliveryAmount).toFixed(2)}</td>
       <td>${Number(r.openBalance).toFixed(2)}</td>
@@ -3098,15 +3332,16 @@ function billEntryHTML(){
           <div class="old-style-row"><label>Customer Type</label><select onchange="updateBillFilter('customerType',this.value)">${typeOptions}</select></div>
           <div class="old-style-row"><label>Coll Boy Code</label><input type="text" value="${esc(f.collBoyCode)}" placeholder="Optional" oninput="updateBillFilter('collBoyCode',this.value)"></div>
           <div class="old-style-row"><label>Payment Mode</label><select onchange="updateBillFilter('paymentMode',this.value)">${pmOptions}</select></div>
+          <div class="old-style-row"><label>Area Code</label><select onchange="updateBillFilter('areaCode',this.value)">${areaOptions}</select></div>
         </div>
         <div>
           <div class="old-style-row"><label>Start Code</label>
-            <select style="flex:1;" onchange="updateBillFilter('startCode',this.value)">${subscriberCodeOptions(f.startCode)}</select>
+            <select style="flex:1;" onchange="updateBillFilter('startCode',this.value)">${subscriberCodeOptions(f.startCode, f.areaCode)}</select>
           </div>
           <div class="old-style-row"><label>End Code</label>
-            <select style="flex:1;" onchange="updateBillFilter('endCode',this.value)">${subscriberCodeOptions(f.endCode)}</select>
+            <select style="flex:1;" onchange="updateBillFilter('endCode',this.value)">${subscriberCodeOptions(f.endCode, f.areaCode)}</select>
           </div>
-          <p style="font-size:11px; color:var(--text-muted); margin:-2px 0 9px;">Example: Start Code <b>SUB-001</b> to End Code <b>SUB-090</b> pulls subscribers coded SUB-001 through SUB-090.</p>
+          <p style="font-size:11px; color:var(--text-muted); margin:-2px 0 9px;">Shown as <b>Party Code Prefix – Name Initial – Party Code Number || Party Name</b> (e.g. <b>CUS-K-001 || R. Kumar</b>). The range itself filters by the <b>full party name</b> — from the name at Start Code through the name at End Code, alphabetically.</p>
           <div class="old-style-row"><label>Start Date</label><input type="date" value="${esc(f.startDate)}" oninput="updateBillFilter('startDate',this.value)"></div>
           <div class="old-style-row"><label>End Date</label><input type="date" value="${esc(f.endDate)}" oninput="updateBillFilter('endDate',this.value)"></div>
         </div>
@@ -3119,9 +3354,9 @@ function billEntryHTML(){
 
       ${billDraft ? (billDraft.length ? `
         <table class="skeleton-table">
-          <thead><tr><th>Party Code</th><th>Party Name</th><th>Area</th><th>Delivery Amt</th><th>Open Bal</th><th>Bill Amount</th></tr></thead>
+          <thead><tr><th>Party Code</th><th>Party Name</th><th>Area Code</th><th>Area</th><th>Delivery Amt</th><th>Open Bal</th><th>Bill Amount</th></tr></thead>
           <tbody>${rows}</tbody>
-          <tfoot><tr><td colspan="5" style="text-align:right; font-weight:600;">Total</td><td style="font-weight:600;">${totalAmt}</td></tr></tfoot>
+          <tfoot><tr><td colspan="6" style="text-align:right; font-weight:600;">Total</td><td style="font-weight:600;">${totalAmt}</td></tr></tfoot>
         </table>
         <div class="form-actions" style="margin-top:20px;">
           <button class="btn btn-brass" onclick="processBill()">Process — Generate ${billDraft.length} Bill${billDraft.length===1?'':'s'}</button>
@@ -3132,7 +3367,12 @@ function billEntryHTML(){
   `;
 }
 
-function updateBillFilter(field,value){ state.billUI[field]=value; billDraft=null; renderBillModule(); }
+function updateBillFilter(field,value){
+  state.billUI[field]=value;
+  if(field==='areaCode'){ state.billUI.startCode=''; state.billUI.endCode=''; }
+  billDraft=null;
+  renderBillModule();
+}
 
 function prepareBill(){
   if(state.billUI.customerType!=='Subscriber'){
@@ -3153,8 +3393,10 @@ function processBill(){
   billDraft.forEach((r,idx)=>{
     state.bills.push({
       billNo:'BILL-'+(startNo+idx), date: todayISO(), partyCode:r.partyCode, partyName:r.partyName,
+      areaName:r.areaName, subAreaName:r.subAreaName, address1:r.address1, address2:r.address2, doorNo:r.doorNo, pincode:r.pincode,
       periodStart:r.periodStart, periodEnd:r.periodEnd, paymentMode:r.paymentMode,
       deliveryAmount:r.deliveryAmount, serviceCharge:r.serviceCharge, openBalance:r.openBalance,
+      deposit:r.deposit, breakdown:r.breakdown,
       amount: Math.round(r.amount), status:'Unpaid'
     });
   });
@@ -3190,22 +3432,25 @@ function buildBillStatementHTML(list, f){
   const totalAmt = list.reduce((a,r)=>a+Number(r.amount||0),0);
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bill Balance Statement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body{font-family:'Courier New',Courier,monospace; color:#1B2436; max-width:820px; margin:24px auto; padding:0 12px;}
-    .stmt-head{text-align:center; border-bottom:1px solid #1B2436; padding-bottom:10px; margin-bottom:10px;}
-    .stmt-head h1{font-size:16px; margin:0 0 2px; letter-spacing:.03em;}
-    .stmt-head p{margin:1px 0; font-size:12px; color:#333;}
-    .stmt-title{font-size:12.5px; font-weight:700; margin:10px 0 2px;}
-    .stmt-sub{font-size:12px; color:#333; margin:0 0 12px;}
-    table{width:100%; border-collapse:collapse; margin-bottom:6px; border:1px solid #1B2436;}
-    th{text-align:left; font-size:11.5px; border:1px solid #1B2436; padding:5px 6px; background:#F1EEE6;}
-    td{font-size:12.5px; padding:5px 6px; vertical-align:top; border:1px solid #1B2436;}
-    .stmt-sno{width:34px;}
-    .stmt-code{width:110px; white-space:nowrap;}
+    *{box-sizing:border-box;}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; color:#1B2333; max-width:860px; margin:28px auto; padding:0 16px; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    .stmt-head{text-align:center; border-bottom:2px solid #0B2148; padding-bottom:14px; margin-bottom:14px;}
+    .stmt-head h1{font-size:19px; margin:0 0 4px; letter-spacing:.01em; color:#0B2148; font-weight:800;}
+    .stmt-head p{margin:1px 0; font-size:12px; color:#647087;}
+    .stmt-title{font-size:13.5px; font-weight:700; margin:14px 0 2px; color:#0B2148;}
+    .stmt-sub{font-size:12px; color:#647087; margin:0 0 14px;}
+    table{width:100%; border-collapse:collapse; margin-bottom:8px; border:1px solid #DFE5EF; border-radius:8px; overflow:hidden;}
+    th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; padding:10px 8px; background:#0B2148; color:#fff; font-weight:600;}
+    td{font-size:12.5px; padding:8px; vertical-align:top; border-bottom:1px solid #E7ECF4;}
+    .stmt-sno{width:36px;}
+    .stmt-code{width:110px; white-space:nowrap; font-family:'Courier New',monospace;}
     .stmt-rec{width:90px;}
-    .stmt-bal{width:90px; text-align:right;}
-    tfoot td{font-weight:700; font-size:12.5px;}
-    @media print{ .no-print{display:none;} body{margin:8px auto;} }
+    .stmt-bal{width:100px; text-align:right; font-weight:600;}
+    tfoot td{font-weight:800; font-size:13px; color:#0B2148; border-top:2px solid #0B2148; border-bottom:none;}
+    @media print{ .no-print{display:none;} body{margin:10px auto;} }
   </style>
   </head><body>
     <div class="stmt-head">
@@ -3221,7 +3466,7 @@ function buildBillStatementHTML(list, f){
       <tfoot><tr><td colspan="3">TOTAL BILLS: ${list.length}</td><td>0.00</td><td style="text-align:right;">${totalAmt.toFixed(2)}</td></tr></tfoot>
     </table>
     <div class="no-print" style="text-align:center; margin-top:20px;">
-      <button onclick="window.print()" style="padding:8px 18px; cursor:pointer;">Print</button>
+      <button onclick="window.print()" style="padding:9px 22px; cursor:pointer; background:#0B2148; color:#fff; border:none; border-radius:5px; font-family:'Inter',sans-serif; font-weight:600; font-size:13px;">Print</button>
     </div>
   </body></html>`;
 }
@@ -3259,74 +3504,113 @@ function upiQrImage(amount, note, size){
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size||160}x${size||160}&margin=6&data=${encodeURIComponent(link)}`;
 }
 
+function formatBillPeriodLabel(startStr, endStr){
+  if(!startStr) return '—';
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const s = new Date(startStr+'T00:00:00');
+  const e = endStr ? new Date(endStr+'T00:00:00') : s;
+  if(s.getFullYear()===e.getFullYear() && s.getMonth()===e.getMonth()){
+    return `${months[s.getMonth()]} ${s.getFullYear()}`;
+  }
+  return `${formatDateDisplay(startStr)} – ${formatDateDisplay(endStr)}`;
+}
+
 function buildInvoiceHTML(b){
   const c = state.company;
   const qrImg = upiQrImage(b.amount, 'Bill '+b.billNo, 170);
+  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown : [{ magazineName:'Delivery charges', qty:'—', value:Number(b.deliveryAmount||0) }];
+  const totalQty = breakdown.reduce((sum,row)=> sum + (Number(row.qty)||0), 0);
+  const rowsHTML = breakdown.map((row,idx)=>`
+        <tr>
+          <td class="c-sno">${idx+1}</td>
+          <td>${esc(row.magazineName)}</td>
+          <td class="c-num">${row.qty}</td>
+          <td class="c-num">₹${Number(row.value||0).toFixed(2)}</td>
+        </tr>`).join('');
+  const addressLines = [b.doorNo ? `${esc(b.doorNo)}, `:'' , esc(b.address1||''), esc(b.address2||''), esc(b.subAreaName||''), esc(b.areaName||''), b.pincode?esc(b.pincode):''].filter(Boolean).join(', ');
+
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bill ${esc(b.billNo)}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body{font-family:'Times New Roman',Times,serif; font-size:16px; color:#22262E; max-width:640px; margin:30px auto; padding:0;}
-    .bill-box{border:2px solid #1B2436; padding:24px 26px; border-radius:4px;}
-    .inv-head{display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1B2436; padding-bottom:14px; margin-bottom:18px;}
-    .inv-head h1{font-size:24px; margin:0 0 4px;}
-    .inv-head p{margin:2px 0; font-size:14px; color:#555;}
-    .inv-meta{text-align:right; font-size:14px;}
-    .inv-meta p{margin:2px 0;}
-    .inv-party{margin-bottom:18px; font-size:16px;}
-    .inv-party b{display:block; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase; color:#8a8a8a; margin-bottom:3px;}
-    table{width:100%; border-collapse:collapse; margin-bottom:18px; border:1px solid #1B2436;}
-    th,td{padding:8px 6px; border-bottom:1px solid #ddd; font-size:15px; text-align:left;}
-    th{text-align:left; font-size:12.5px; text-transform:uppercase; letter-spacing:.05em; color:#8a8a8a; border-bottom:2px solid #1B2436;}
-    tfoot td{border-bottom:none; border-top:2px solid #1B2436; font-weight:700; font-size:16px;}
-    .inv-qr{display:flex; align-items:center; gap:16px; margin:18px 0; padding:14px; background:#FBF7EE; border:1px dashed #DCD6C7; border-radius:4px;}
-    .inv-qr p{font-size:14px; color:#555; margin:0;}
-    .inv-status{font-size:14px; margin-top:6px;}
-    .inv-sign{display:flex; justify-content:flex-end; margin-top:40px;}
-    .inv-sign .box{text-align:center; font-size:14px; color:#333;}
-    .inv-sign .for-line{margin:0 0 42px; font-size:14px;}
-    .inv-sign .sig-line{border-top:1px solid #1B2436; padding-top:6px; font-size:13px; color:#555;}
-    .inv-foot{font-size:13px; color:#8a8a8a; margin-top:22px; text-align:center;}
-    @media print{ .no-print{display:none;} body{margin:10px auto;} }
+    *{box-sizing:border-box;}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; color:#1B2333; max-width:640px; margin:36px auto; padding:0 16px; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    .bill-box{border:1px solid #DFE5EF; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(11,33,72,0.06);}
+    .inv-topbar{height:6px; background:linear-gradient(90deg,#0B2148,#2A5DC7);}
+    .inv-body{padding:30px 32px 26px;}
+    .inv-head{text-align:center; border-bottom:2px solid #0B2148; padding-bottom:14px; margin-bottom:18px;}
+    .inv-head h1{font-size:20px; margin:0 0 4px; color:#0B2148; font-weight:800; letter-spacing:.01em;}
+    .inv-head p{margin:2px 0; font-size:12px; color:#647087;}
+    .inv-meta-row{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; gap:16px;}
+    .inv-party b{display:block; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:#647087; margin-bottom:4px; font-weight:700;}
+    .inv-party .name{font-size:15px; font-weight:700; color:#1B2333;}
+    .inv-party .addr{font-size:12.5px; color:#3A4356; margin-top:3px; max-width:280px; line-height:1.5;}
+    .inv-fields{text-align:right; font-size:12.5px; color:#3A4356; white-space:nowrap;}
+    .inv-fields .field{margin-bottom:6px;}
+    .inv-fields .field b{color:#0B2148; font-weight:700;}
+    .inv-fields .badge{display:inline-block; background:#0B2148; color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.1em; padding:4px 10px; border-radius:3px; margin-bottom:8px;}
+    table{width:100%; border-collapse:collapse; margin-bottom:18px; border:1px solid #DFE5EF; border-radius:8px; overflow:hidden;}
+    th,td{padding:10px 10px; font-size:13px; text-align:left;}
+    th{background:#0B2148; color:#fff; font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; font-weight:600;}
+    th:first-child, td:first-child{padding-left:14px;}
+    th:last-child, td:last-child{padding-right:14px;}
+    .c-sno{width:36px; color:#647087;}
+    .c-num{text-align:right; white-space:nowrap;}
+    tbody td{border-bottom:1px solid #E7ECF4;}
+    tfoot td{border-top:2px solid #0B2148; font-weight:800; font-size:14px; color:#0B2148; padding-top:12px;}
+    .inv-qr{display:flex; align-items:center; gap:16px; margin:0 0 20px; padding:14px 16px; background:#F1F5FB; border:1px dashed #B9CBEA; border-radius:8px;}
+    .inv-qr p{font-size:12.5px; color:#3A4356; margin:0; line-height:1.5;}
+    .inv-foot-row{display:flex; justify-content:space-between; align-items:flex-end; margin-top:34px;}
+    .inv-mobile{font-size:12.5px; color:#3A4356;}
+    .inv-mobile b{color:#0B2148;}
+    .inv-sign{text-align:center; font-size:12.5px; color:#3A4356;}
+    .inv-sign .for-line{margin:0 0 40px; font-size:12.5px; color:#647087;}
+    .inv-sign .sig-line{border-top:1px solid #C9D3E3; padding-top:7px; font-size:12px; color:#647087;}
+    .inv-thanks{font-size:11.5px; color:#93A0B5; margin-top:22px; text-align:center; letter-spacing:.02em;}
+    @media print{ .no-print{display:none;} body{margin:12px auto;} .bill-box{box-shadow:none;} }
   </style>
   </head><body>
     <div class="bill-box">
+    <div class="inv-topbar"></div>
+    <div class="inv-body">
     <div class="inv-head">
-      <div>
-        <h1>${esc(c.name||'The Distribution Ledger')}</h1>
-        <p>${esc(c.address||'')}</p>
-        <p>${esc(c.phone||'')}${c.email?' · '+esc(c.email):''}</p>
-        ${c.gst?`<p>GSTIN: ${esc(c.gst)}</p>`:''}
-      </div>
-      <div class="inv-meta">
-        <p><b>BILL</b></p>
-        <p>No: ${esc(b.billNo)}</p>
-        <p>Date: ${formatDateDisplay(b.date)}</p>
-        <p>Period: ${formatDateDisplay(b.periodStart)} – ${formatDateDisplay(b.periodEnd)}</p>
-      </div>
+      <h1>${esc(c.name||'The Distribution Ledger')}</h1>
+      <p>${esc(c.address||'')}</p>
+      <p>${esc(c.phone||'')}${c.email?' · '+esc(c.email):''}${c.gst?' · GSTIN: '+esc(c.gst):''}</p>
     </div>
-    <div class="inv-party">
-      <b>Bill To</b>
-      ${esc(b.partyName)} (${esc(b.partyCode)})
+    <div class="inv-meta-row">
+      <div class="inv-party">
+        <b>To</b>
+        <span class="name">${esc(b.partyName)}</span> <span style="color:#647087;">(${esc(b.partyCode)})</span>
+        ${addressLines ? `<div class="addr">${addressLines}</div>` : ''}
+      </div>
+      <div class="inv-fields">
+        <span class="badge">BILL No. ${esc(b.billNo)}</span>
+        <div class="field"><b>${esc(formatBillPeriodLabel(b.periodStart, b.periodEnd))}</b></div>
+        <div class="field">Deposit: ₹${Number(b.deposit||0).toFixed(2)}</div>
+        <div class="field">Bill Date: ${formatDateDisplay(b.date)}</div>
+      </div>
     </div>
     <table>
-      <thead><tr><th>Description</th><th style="text-align:right;">Amount</th></tr></thead>
-      <tbody>
-        <tr><td>Delivery charges for the period</td><td style="text-align:right;">${Number(b.deliveryAmount||0).toFixed(2)}</td></tr>
-        ${Number(b.openBalance||0)!==0 ? `<tr><td>Balance brought forward</td><td style="text-align:right;">${Number(b.openBalance).toFixed(2)}</td></tr>` : ''}
-      </tbody>
-      <tfoot><tr><td>Total Payable</td><td style="text-align:right;">₹${Math.round(b.amount)}</td></tr></tfoot>
+      <thead><tr><th class="c-sno">S.No</th><th>Magazine Name</th><th class="c-num">No. of Qty</th><th class="c-num">Value</th></tr></thead>
+      <tbody>${rowsHTML}</tbody>
+      <tfoot><tr><td colspan="2">Total</td><td class="c-num">${totalQty}</td><td class="c-num">₹${Number(b.deliveryAmount||0).toFixed(2)}</td></tr></tfoot>
     </table>
-    ${qrImg ? `<div class="inv-qr"><img src="${qrImg}" width="130" height="130" alt="UPI QR" onerror="this.parentElement.style.display='none'"><p><b>Scan to pay via UPI</b><br>${esc(c.upi)}<br>Amount: ₹${Math.round(b.amount)}</p></div>` : ''}
-    <p class="inv-status">Payment Status: <b>${esc(b.status)}</b> &nbsp;·&nbsp; Payment Mode: ${esc(b.paymentMode||'—')}</p>
-    <div class="inv-sign">
-      <div class="box">
+    ${Number(b.openBalance||0)!==0 ? `<p style="font-size:12.5px; color:#3A4356; margin:0 0 8px;">Balance brought forward: <b style="color:#0B2148;">₹${Number(b.openBalance).toFixed(2)}</b></p>` : ''}
+    <p style="font-size:15px; font-weight:800; color:#0B2148; margin:0 0 20px;">Total Payable: ₹${Math.round(b.amount)}</p>
+    ${qrImg ? `<div class="inv-qr"><img src="${qrImg}" width="110" height="110" alt="UPI QR" onerror="this.parentElement.style.display='none'"><p><b style="display:block; color:#0B2148; margin-bottom:3px;">Scan to pay via UPI</b>${esc(c.upi)}<br>Amount: ₹${Math.round(b.amount)}</p></div>` : ''}
+    <div class="inv-foot-row">
+      <div class="inv-mobile">Mobile: <b>${esc(c.phone||'—')}</b></div>
+      <div class="inv-sign">
         <p class="for-line">For ${esc(c.name||'The Distribution Ledger')}</p>
         <p class="sig-line">Authorized Signature</p>
       </div>
     </div>
-    <p class="inv-foot">Thank you for your subscription.</p>
+    <p class="inv-thanks">Thank you for your subscription.</p>
+    </div>
     </div>
     <div class="no-print" style="text-align:center; margin-top:20px;">
-      <button onclick="window.print()" style="padding:8px 18px; cursor:pointer;">Print</button>
+      <button onclick="window.print()" style="padding:9px 22px; cursor:pointer; background:#0B2148; color:#fff; border:none; border-radius:5px; font-family:'Inter',sans-serif; font-weight:600; font-size:13px;">Print</button>
     </div>
   </body></html>`;
 }
@@ -3401,6 +3685,7 @@ function billStatusHTML(){
       <td>${Math.round(b.amount)}</td>
       <td>${b.status==='Paid' ? '<span style="color:var(--success);font-weight:600;">Paid</span>' : '<span style="color:var(--danger);">Unpaid</span>'}</td>
       <td style="text-align:right; white-space:nowrap;">
+        <button class="row-action-btn" onclick="viewBillDetail('${b.billNo}')">View</button>
         <button class="row-action-btn" onclick="openInvoice('${b.billNo}')">Bill</button>
         <button class="row-action-btn" onclick="sendBillWhatsApp('${b.billNo}')">WhatsApp</button>
         <button class="row-action-btn" onclick="toggleBillPaid('${b.billNo}')">${b.status==='Paid'?'Mark Unpaid':'Mark Paid'}</button>
@@ -3426,6 +3711,62 @@ function billStatusHTML(){
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
+    </div>
+  `;
+}
+
+function viewBillDetail(billNo){
+  state.billUI.viewingBillNo = billNo;
+  state.billUI.view = 'detail';
+  renderBillModule();
+}
+function closeBillDetail(){
+  state.billUI.viewingBillNo = null;
+  state.billUI.view = 'status';
+  renderBillModule();
+}
+
+function billDetailHTML(){
+  const b = state.bills.find(x=>x.billNo===state.billUI.viewingBillNo);
+  if(!b){
+    return `
+      <div class="breadcrumb">Bill <b>›</b> Sales Bill <b>›</b> Bill Status <b>›</b> View</div>
+      <div class="module-header"><h1 class="module-title">Bill Not Found</h1></div>
+      <div class="empty-note"><b>This bill no longer exists</b>It may have been deleted.</div>
+      <div class="form-actions" style="margin-top:20px;"><button class="btn btn-ghost" onclick="closeBillDetail()">← Back to Bill Status</button></div>
+    `;
+  }
+  const sub = state.subscribers.find(s=>s.partyCode===b.partyCode);
+  return `
+    <div class="breadcrumb">Bill <b>›</b> Sales Bill <b>›</b> Bill Status <b>›</b> View</div>
+    <div class="module-header">
+      <h1 class="module-title">Bill ${esc(b.billNo)}</h1>
+      <span class="status-chip">${b.status==='Paid' ? '<span style="color:var(--success);font-weight:600;">Paid</span>' : '<span style="color:var(--danger);font-weight:600;">Unpaid</span>'}</span>
+    </div>
+    <div class="sub-form-grid">
+      <div class="card">
+        <h3 class="panel-title">Party Details</h3>
+        <div class="old-style-row"><label>Party Code</label><div style="padding:8px 0; font-family:var(--font-mono);">${esc(b.partyCode)}</div></div>
+        <div class="old-style-row"><label>Party Name</label><div style="padding:8px 0;">${esc(b.partyName)}</div></div>
+        <div class="old-style-row"><label>Area</label><div style="padding:8px 0;">${sub ? esc(sub.areaName)||'—' : '—'}</div></div>
+        <div class="old-style-row"><label>Phone</label><div style="padding:8px 0;">${sub ? esc(sub.phone)||'—' : '—'}</div></div>
+      </div>
+      <div class="card">
+        <h3 class="panel-title">Bill Details</h3>
+        <div class="old-style-row"><label>Bill Date</label><div style="padding:8px 0;">${formatDateDisplay(b.date)}</div></div>
+        <div class="old-style-row"><label>Period</label><div style="padding:8px 0;">${formatDateDisplay(b.periodStart)} – ${formatDateDisplay(b.periodEnd)}</div></div>
+        <div class="old-style-row"><label>Payment Mode</label><div style="padding:8px 0;">${esc(b.paymentMode)}</div></div>
+        <div class="old-style-row"><label>Delivery Amount</label><div style="padding:8px 0;">${Number(b.deliveryAmount||0).toFixed(2)}</div></div>
+        <div class="old-style-row"><label>Service Charge</label><div style="padding:8px 0;">${Number(b.serviceCharge||0).toFixed(2)}</div></div>
+        <div class="old-style-row"><label>Open Balance</label><div style="padding:8px 0;">${Number(b.openBalance||0).toFixed(2)}</div></div>
+        <div class="old-style-row"><label>Total Amount</label><div style="padding:8px 0; font-weight:700; font-size:16px;">${Math.round(b.amount)}</div></div>
+      </div>
+    </div>
+    <div class="form-actions" style="margin-top:20px;">
+      <button class="btn btn-ghost" onclick="closeBillDetail()">← Back to Bill Status</button>
+      <button class="btn btn-ghost" onclick="openInvoice('${b.billNo}')">🖨 Print Bill</button>
+      <button class="btn btn-ghost" onclick="sendBillWhatsApp('${b.billNo}')">📲 WhatsApp</button>
+      <button class="btn btn-brass" onclick="toggleBillPaid('${b.billNo}')">${b.status==='Paid'?'Mark Unpaid':'Mark Paid'}</button>
     </div>
   `;
 }
@@ -3564,6 +3905,7 @@ const REPORTS = {
       state.subscribers.filter(s=>s.activeState==='YES').forEach(s=>{
         let copies=0;
         dates.forEach(dt=>{
+          if(isDateOnHold(s, dt)) return;
           const day = weekdayKeyForDate(dt);
           s.items.forEach(it=>{ copies += Number(it.qty[day]||0); });
         });
@@ -4150,6 +4492,7 @@ function buildDespatchRows(date){
   const day = weekdayKeyForDate(date);
   const totals = {}; // key: area|||magazine
   state.subscribers.filter(s=>s.activeState==='YES').forEach(s=>{
+    if(isDateOnHold(s, date)) return; // subscriber is on hold for this date, so nothing is despatched to them
     s.items.forEach(it=>{
       const qty = Number(it.qty[day]||0);
       if(qty<=0) return;
@@ -4241,6 +4584,7 @@ function unsoldListHTML(){
         <thead><tr><th>Date</th><th>Dealer/Stall</th><th>Magazine</th><th>Qty Returned</th><th style="text-align:right;">Actions</th></tr></thead>
         <tbody id="unsoldTableBody"></tbody>
       </table>
+      <div class="pagination-bar" id="unsoldPagination"></div>
     </div>
   `;
 }
@@ -4257,9 +4601,12 @@ function renderUnsoldTableBody(){
   if(!tbody) return;
   if(list.length===0){
     tbody.innerHTML = `<tr><td colspan="5"><div class="empty-note"><b>No returns logged</b>Try a different search, or log a new unsold return.</div></td></tr>`;
+    document.getElementById('unsoldPagination').innerHTML='';
     return;
   }
-  tbody.innerHTML = list.map(u=>`
+  const { pageItems, totalPages, safePage } = paginateSlice(list, state.unsoldUI.page);
+  state.unsoldUI.page = safePage;
+  tbody.innerHTML = pageItems.map(u=>`
     <tr>
       <td>${formatDateDisplay(u.date)}</td>
       <td>${esc(u.outletName)}</td>
@@ -4272,9 +4619,12 @@ function renderUnsoldTableBody(){
       </td>
     </tr>
   `).join('');
+  renderPaginationBar('unsoldPagination', list.length, state.unsoldUI.page, totalPages, 'goToUnsoldPage');
 }
 
-function updateUnsoldSearch(v){ state.unsoldUI.search=v; renderUnsoldTableBody(); }
+function goToUnsoldPage(p){ state.unsoldUI.page = p; renderUnsoldTableBody(); }
+
+function updateUnsoldSearch(v){ state.unsoldUI.search=v; state.unsoldUI.page=1; renderUnsoldTableBody(); }
 
 function openUnsoldForm(id, readonly){
   state.unsoldUI.view='form';
@@ -4385,9 +4735,11 @@ function renderBillCollectionModule(){
 function billCollectionEntryHTML(){
   const ui = state.collUI;
   const parties = partiesWithUnpaidBills();
-  const partyOptions = `<option value="">— Select —</option>` + parties.map(p=>
-    `<option value="${p.partyCode}" ${ui.partyCode===p.partyCode?'selected':''}>${esc(p.partyName)} (${esc(p.partyCode)}) — ${p.total.toFixed(2)} due</option>`
-  ).join('');
+  const partyOptions = `<option value="">— Select —</option>` + parties.map(p=>{
+    const sub = state.subscribers.find(s=>s.partyCode===p.partyCode);
+    const holdFlag = sub && isDateOnHold(sub, todayISO()) ? ' [On Hold]' : '';
+    return `<option value="${p.partyCode}" ${ui.partyCode===p.partyCode?'selected':''}>${esc(p.partyName)} (${esc(p.partyCode)}) — ${p.total.toFixed(2)} due${holdFlag}</option>`;
+  }).join('');
   const modeOptions = ['Cash','UPI','Cheque','Bank Transfer'].map(m=>
     `<option value="${m}" ${ui.mode===m?'selected':''}>${m}</option>`
   ).join('');
