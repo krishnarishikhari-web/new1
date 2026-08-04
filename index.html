@@ -563,6 +563,28 @@
 
   .skeleton-card{
     background:var(--paper-card); border:1px solid var(--rule); border-radius:6px; overflow:hidden;
+    padding:22px 24px;
+  }
+  /* Full-bleed children (toolbar / table / pagination / totals bar) get their card padding
+     cancelled out on whichever edges they touch, so they still meet the card border flush
+     and keep their rounded corners — while ordinary content (labels, inputs, buttons, text)
+     now sits with correct cell padding and spacing instead of touching the card edge. */
+  .skeleton-card > .skeleton-toolbar{
+    margin:-22px -24px 18px;
+  }
+  .skeleton-card > table.skeleton-table{
+    width:calc(100% + 48px);
+    margin:0 -24px;
+  }
+  .skeleton-card > table.skeleton-table:first-child{ margin-top:-22px; }
+  .skeleton-card > table.skeleton-table:last-child{ margin-bottom:-22px; }
+  .skeleton-card > .pagination-bar{
+    width:calc(100% + 48px);
+    margin:0 -24px -22px;
+  }
+  .skeleton-card > .coll-total-bar{
+    width:calc(100% + 48px);
+    margin:0 -24px;
   }
   .skeleton-toolbar{
     display:flex; justify-content:space-between; align-items:center; gap:10px;
@@ -573,17 +595,23 @@
     border:1px solid var(--rule); border-radius:4px; padding:8px 12px;
     font-size:12.5px; color:var(--text-muted); background:#F1F5FB;
   }
-  table.skeleton-table{width:100%; border-collapse:collapse; font-size:12.5px; border:1px solid var(--rule);}
+  table.skeleton-table{width:100%; border-collapse:separate; border-spacing:0; font-size:12.5px; border:1px solid var(--rule);}
   table.skeleton-table th{
     text-align:left; padding:14px 18px;
     background:linear-gradient(180deg, var(--ink-2), var(--ink));
     color:#fff;
     font-weight:600; letter-spacing:.05em; text-transform:uppercase; font-size:10.5px;
-    border:1px solid var(--ink);
+    border-bottom:1px solid var(--ink);
+    border-right:1px solid rgba(255,255,255,0.12);
   }
+  table.skeleton-table th:last-child{border-right:none;}
   table.skeleton-table thead tr:first-child th:first-child{border-top-left-radius:6px;}
   table.skeleton-table thead tr:first-child th:last-child{border-top-right-radius:6px;}
-  table.skeleton-table td{padding:16px 18px; border:1px solid var(--rule); vertical-align:middle;}
+  table.skeleton-table td{padding:16px 18px; border-bottom:1px solid var(--rule); border-right:1px solid var(--rule); vertical-align:middle;}
+  table.skeleton-table td:last-child{border-right:none;}
+  table.skeleton-table tbody tr:last-child td{border-bottom:none;}
+  table.skeleton-table tfoot td{border-bottom:none; border-top:1px solid var(--rule);}
+  table.skeleton-table tbody:last-of-type tr:last-child td{border-bottom:none;}
   table.skeleton-table tbody tr:hover td{background:var(--brass-light);}
 
   /* Bill Collection — compact fields row + full-width, generously spaced bills table */
@@ -743,7 +771,7 @@
   .card{transition:box-shadow .15s ease, transform .15s ease;}
   .kpi-card{transition:box-shadow .15s ease, transform .15s ease;}
   .kpi-card:hover, .card:hover{box-shadow:0 6px 18px -8px rgba(11,33,72,0.18); transform:translateY(-1px);}
-  table.skeleton-table th{position:sticky; top:0; z-index:2;}
+  table.skeleton-table.scroll-table thead th{position:sticky; top:0; z-index:2;}
 </style>
 </head>
 <body>
@@ -3352,6 +3380,9 @@ function computeSubscriberBillAmount(sub, dates){
 // ledger-style bill (S.No / Magazine Name / No. of Qty / Value).
 function computeSubscriberMagazineBreakdown(sub, dates){
   const byMag = {}; // magazineCode -> { magazineName, qty, value }
+  const periodStart = dates.length ? dates[0] : '';
+  const periodEnd = dates.length ? dates[dates.length-1] : '';
+  const overlappingHold = (sub.holds||[]).find(h=> h.startDate<=periodEnd && h.endDate>=periodStart);
   dates.forEach(dt=>{
     if(isDateOnHold(sub, dt)) return;
     const day = weekdayKeyForDate(dt);
@@ -3363,7 +3394,12 @@ function computeSubscriberMagazineBreakdown(sub, dates){
         let lineAmount = qty*rate;
         if(mag && mag.rounded==='Yes'){ lineAmount = Math.round(lineAmount); }
         if(!byMag[it.magazineCode]){
-          byMag[it.magazineCode] = { magazineName: it.magazineName, qty:0, value:0 };
+          byMag[it.magazineCode] = {
+            magazineName: it.magazineName, qty:0, value:0,
+            startDate: sub.startDate||'', endDate: sub.endDate||'',
+            holdFrom: overlappingHold ? overlappingHold.startDate : '',
+            holdTo: overlappingHold ? overlappingHold.endDate : ''
+          };
         }
         byMag[it.magazineCode].qty += qty;
         byMag[it.magazineCode].value += lineAmount;
@@ -3506,7 +3542,6 @@ function billEntryHTML(){
           <div class="old-style-row"><label>End Code</label>
             <select style="flex:1;" onchange="updateBillFilter('endCode',this.value)">${subscriberCodeOptions(f.endCode, f.areaCode)}</select>
           </div>
-          <p style="font-size:11px; color:var(--text-muted); margin:-2px 0 9px;">Shown as <b>Party Code Prefix – Name Initial – Party Code Number || Party Name</b> (e.g. <b>CUS-K-001 || R. Kumar</b>). The range itself filters by the <b>full party name</b> — from the name at Start Code through the name at End Code, alphabetically.</p>
           <div class="old-style-row"><label>Start Date</label><input type="date" value="${esc(f.startDate)}" oninput="updateBillFilter('startDate',this.value)"></div>
           <div class="old-style-row"><label>End Date</label><input type="date" value="${esc(f.endDate)}" oninput="updateBillFilter('endDate',this.value)"></div>
         </div>
@@ -3680,6 +3715,16 @@ function formatBillPeriodLabel(startStr, endStr){
   return `${formatDateDisplay(startStr)} – ${formatDateDisplay(endStr)}`;
 }
 
+function magSubInfoHTML(row){
+  const parts = [];
+  if(row.startDate) parts.push(`<span>Start: ${formatDateDisplay(row.startDate)}</span>`);
+  if(row.endDate) parts.push(`<span>End: ${formatDateDisplay(row.endDate)}</span>`);
+  if(row.holdFrom) parts.push(`<span>Hold From: ${formatDateDisplay(row.holdFrom)}</span>`);
+  if(row.holdTo) parts.push(`<span>Hold To: ${formatDateDisplay(row.holdTo)}</span>`);
+  if(!parts.length) return '';
+  return `<div class="mag-sub-info">${parts.join('')}</div>`;
+}
+
 function invoiceStyleBlock(){
   return `
     *{box-sizing:border-box;}
@@ -3697,7 +3742,6 @@ function invoiceStyleBlock(){
     .inv-fields{text-align:right; font-size:12.5px; color:#3A4356; white-space:nowrap;}
     .inv-fields .field{margin-bottom:6px;}
     .inv-fields .field b{color:#0B2148; font-weight:700;}
-    .inv-fields .badge{display:inline-block; background:#0B2148; color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.1em; padding:4px 10px; border-radius:3px; margin-bottom:8px;}
     .tag-badge{display:inline-block; background:#0B2148; color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:4px 10px; border-radius:3px;}
     table{width:100%; border-collapse:collapse; margin-bottom:18px; border:1px solid #DFE5EF; border-radius:8px; overflow:hidden;}
     th,td{padding:10px 10px; font-size:13px; text-align:left;}
@@ -3707,28 +3751,35 @@ function invoiceStyleBlock(){
     .c-sno{width:36px; color:#647087;}
     .c-num{text-align:right; white-space:nowrap;}
     tbody td{border-bottom:1px solid #E7ECF4;}
+    .mag-sub-info{margin-top:3px; font-size:10.5px; font-weight:400; color:#8792A6; line-height:1.5;}
+    .mag-sub-info span{display:inline-block; margin-right:8px;}
     tfoot td{border-top:2px solid #0B2148; font-weight:800; font-size:14px; color:#0B2148; padding-top:12px;}
-    .inv-qr{display:flex; align-items:center; gap:20px; margin:0 0 20px; padding:16px 18px; background:#F1F5FB; border:1px dashed #B9CBEA; border-radius:8px;}
-    .inv-qr p{font-size:12.5px; color:#3A4356; margin:0; line-height:1.6;}
-    .upi-id-highlight{display:inline-block; background:#FFF3C4; color:#7A5300; font-weight:800; letter-spacing:.01em; padding:3px 10px; border-radius:5px; margin:3px 0; font-size:13.5px;}
-    .inv-foot-row{display:flex; justify-content:space-between; align-items:flex-end; margin-top:34px;}
-    .inv-mobile{font-size:12.5px; color:#3A4356; display:flex; align-items:center; gap:8px;}
+    .upi-id-highlight{display:inline-block; background:#FFF3C4; color:#7A5300; font-weight:800; letter-spacing:.01em; padding:2px 8px; border-radius:5px; margin:2px 0; font-size:12.5px;}
+    .inv-pay-row{display:flex; align-items:center; justify-content:space-between; gap:14px; margin:2px 0 20px; padding:14px 16px; background:#F1F5FB; border:1px dashed #B9CBEA; border-radius:8px; flex-wrap:wrap;}
+    .inv-pay{display:flex; align-items:center; gap:12px;}
+    .inv-pay img{flex-shrink:0; border-radius:4px;}
+    .inv-pay-info{font-size:11.5px; color:#3A4356; line-height:1.65;}
+    .inv-pay-info .payee{font-weight:700; color:#0B2148;}
+    .inv-col{text-align:center; font-size:12px; color:#3A4356;}
+    .inv-col b{display:block;}
+    .inv-billno .badge{display:inline-block; background:#0B2148; color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.1em; padding:5px 12px; border-radius:3px;}
+    .inv-mobile .tag-badge{display:block; width:fit-content; margin:0 auto 5px;}
     .inv-mobile b{color:#0B2148;}
-    .inv-sign{text-align:center; font-size:12.5px; color:#3A4356;}
-    .inv-sign .sig-line{border-top:1px solid #C9D3E3; margin-top:40px; padding-top:7px; font-size:12px; color:#647087; white-space:nowrap;}
-    .inv-thanks{font-size:11.5px; color:#93A0B5; margin-top:22px; text-align:center; letter-spacing:.02em;}
+    .inv-sign .sig-line{border-top:1px solid #C9D3E3; padding-top:6px; font-size:11.5px; color:#647087; white-space:nowrap;}
+    .inv-thanks{font-size:11.5px; color:#93A0B5; margin-top:18px; text-align:center; letter-spacing:.02em;}
   `;
 }
 
 function buildInvoiceBodyHTML(b){
   const c = state.company;
   const qrImg = upiQrImage(b.amount, 'Bill '+b.billNo, 220);
-  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown : [{ magazineName:'Delivery charges', qty:'—', value:Number(b.deliveryAmount||0) }];
+  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown.slice() : [{ magazineName:'Delivery charges', qty:'—', value:Number(b.deliveryAmount||0) }];
+  if(Number(b.openBalance||0)!==0){ breakdown.push({ magazineName:'Old Balance', qty:'—', value:Number(b.openBalance||0) }); }
   const totalQty = breakdown.reduce((sum,row)=> sum + (Number(row.qty)||0), 0);
   const rowsHTML = breakdown.map((row,idx)=>`
         <tr>
           <td class="c-sno">${idx+1}</td>
-          <td>${esc(row.magazineName)}</td>
+          <td>${esc(row.magazineName)}${magSubInfoHTML(row)}</td>
           <td class="c-num">${row.qty}</td>
           <td class="c-num">₹${Number(row.value||0).toFixed(2)}</td>
         </tr>`).join('');
@@ -3750,23 +3801,28 @@ function buildInvoiceBodyHTML(b){
         ${addressLines ? `<div class="addr">${addressLines}</div>` : ''}
       </div>
       <div class="inv-fields">
-        <span class="badge">BILL No. ${esc(b.billNo)}</span>
         <div class="field"><b>${esc(formatBillPeriodLabel(b.periodStart, b.periodEnd))}</b></div>
         <div class="field">Deposit: ₹${Number(b.deposit||0).toFixed(2)}</div>
         <div class="field">Bill Date: ${formatDateDisplay(b.date)}</div>
       </div>
     </div>
     <table>
-      <thead><tr><th class="c-sno">S.No</th><th>Magazine Name</th><th class="c-num">No. of Qty</th><th class="c-num">Value</th></tr></thead>
+      <thead><tr><th class="c-sno">S.No</th><th>Magazine Name</th><th class="c-num">No. of Qty</th><th class="c-num">Amount</th></tr></thead>
       <tbody>${rowsHTML}</tbody>
-      <tfoot><tr><td colspan="2">Total</td><td class="c-num">${totalQty}</td><td class="c-num">₹${Number(b.deliveryAmount||0).toFixed(2)}</td></tr></tfoot>
+      <tfoot><tr><td colspan="2">Total</td><td class="c-num">${totalQty}</td><td class="c-num">₹${(Number(b.deliveryAmount||0)+Number(b.serviceCharge||0)+Number(b.openBalance||0)).toFixed(2)}</td></tr></tfoot>
     </table>
-    ${Number(b.openBalance||0)!==0 ? `<p style="font-size:12.5px; color:#3A4356; margin:0 0 8px;">Balance brought forward: <b style="color:#0B2148;">₹${Number(b.openBalance).toFixed(2)}</b></p>` : ''}
-    <p style="font-size:15px; font-weight:800; color:#0B2148; margin:0 0 20px;">Total Payable: ₹${Math.round(b.amount)}</p>
-    ${qrImg ? `<div class="inv-qr"><img src="${qrImg}" width="150" height="150" alt="UPI QR" onerror="this.parentElement.style.display='none'"><p><span class="tag-badge" style="margin-bottom:8px; display:inline-block;">Pay via UPI</span><br><span class="upi-id-highlight">${esc(c.upi)}</span><br>Amount: ₹${Math.round(b.amount)}</p></div>` : ''}
-    <div class="inv-foot-row">
-      <div class="inv-mobile"><span class="tag-badge">Mobile</span> <b>${esc(c.phone||'—')}</b></div>
-      <div class="inv-sign">
+    <div class="inv-pay-row">
+      ${qrImg ? `
+      <div class="inv-pay">
+        <img src="${qrImg}" width="90" height="90" alt="UPI QR" onerror="this.parentElement.style.display='none'">
+        <div class="inv-pay-info">
+          <span class="tag-badge">Google Pay</span><br>
+          UPI ID: <span class="upi-id-highlight">${esc(c.upi)}</span><br>
+          Mobile: ${esc(c.phone||'—')}<br>
+          Amount: ₹${Math.round(b.amount)}
+        </div>
+      </div>` : `<div></div>`}
+      <div class="inv-col inv-sign">
         <p class="sig-line">Authorized Sign(${esc(c.name||'The Distribution Ledger')})</p>
       </div>
     </div>
@@ -3804,11 +3860,12 @@ function openInvoice(billNo){
 function buildInvoiceBodyCompactHTML(b){
   const c = state.company;
   const qrImg = upiQrImage(b.amount, 'Bill '+b.billNo, 160);
-  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown : [{ magazineName:'Delivery charges', qty:'—', value:Number(b.deliveryAmount||0) }];
+  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown.slice() : [{ magazineName:'Delivery charges', qty:'—', value:Number(b.deliveryAmount||0) }];
+  if(Number(b.openBalance||0)!==0){ breakdown.push({ magazineName:'Old Balance', qty:'—', value:Number(b.openBalance||0) }); }
   const totalQty = breakdown.reduce((sum,row)=> sum + (Number(row.qty)||0), 0);
   const rowsHTML = breakdown.map(row=>`
         <tr>
-          <td>${esc(row.magazineName)}</td>
+          <td>${esc(row.magazineName)}${magSubInfoHTML(row)}</td>
           <td class="c-num">${row.qty}</td>
           <td class="c-num">₹${Number(row.value||0).toFixed(2)}</td>
         </tr>`).join('');
@@ -3828,24 +3885,20 @@ function buildInvoiceBodyCompactHTML(b){
           ${addressLines ? `<div class="addr">${addressLines}</div>` : ''}
         </div>
         <div class="cb-fields">
-          <div class="badge">BILL No. ${esc(b.billNo)}</div>
           <div>${esc(formatBillPeriodLabel(b.periodStart, b.periodEnd))}</div>
           <div>Date: ${formatDateDisplay(b.date)}</div>
         </div>
       </div>
       <table>
-        <thead><tr><th>Magazine</th><th class="c-num">Qty</th><th class="c-num">Value</th></tr></thead>
+        <thead><tr><th>Magazine</th><th class="c-num">Qty</th><th class="c-num">Amount</th></tr></thead>
         <tbody>${rowsHTML}</tbody>
-        <tfoot><tr><td>Total</td><td class="c-num">${totalQty}</td><td class="c-num">₹${Number(b.deliveryAmount||0).toFixed(2)}</td></tr></tfoot>
+        <tfoot><tr><td>Total</td><td class="c-num">${totalQty}</td><td class="c-num">₹${(Number(b.deliveryAmount||0)+Number(b.serviceCharge||0)+Number(b.openBalance||0)).toFixed(2)}</td></tr></tfoot>
       </table>
-      ${Number(b.openBalance||0)!==0 ? `<div class="cb-note">Balance b/f: ₹${Number(b.openBalance).toFixed(2)}</div>` : ''}
-      <div class="cb-total">Total Payable: ₹${Math.round(b.amount)}</div>
       <div class="cb-foot">
         <div class="cb-pay">
           ${qrImg ? `<img src="${qrImg}" class="cb-qr" alt="UPI QR" onerror="this.style.display='none'">` : ''}
           <div class="cb-pay-info">
-            ${c.upi ? `<div class="cb-upi-label badge-chip">Pay via UPI</div><div class="cb-upi">${esc(c.upi)}</div>` : ''}
-            <div class="cb-mobile"><span class="badge-chip">Mobile</span> <b>${esc(c.phone||'—')}</b></div>
+            ${c.upi ? `<div class="cb-upi-label badge-chip">Google Pay</div><div class="cb-upi">${esc(c.upi)}</div><div class="cb-mobile-inline">Mobile: ${esc(c.phone||'—')}</div><div class="cb-amount">Amt: ₹${Math.round(b.amount)}</div>` : ''}
           </div>
         </div>
         <div class="cb-sign">
@@ -3913,18 +3966,24 @@ function buildBillsPrintHTML(bills){
     .compact-bill th{background:#0B2148; color:#fff; font-size:1.7mm; text-transform:uppercase; font-weight:600;}
     .compact-bill td.c-num, .compact-bill th.c-num{text-align:right;}
     .compact-bill tbody td{border-bottom:0.2mm solid #E7ECF4;}
+    .compact-bill .mag-sub-info{margin-top:0.4mm; font-size:1.5mm; font-weight:400; color:#8792A6; line-height:1.35;}
+    .compact-bill .mag-sub-info span{display:inline-block; margin-right:1.5mm;}
+    .compact-bill .cb-mobile-inline{font-size:1.8mm; color:#3A4356;}
     .compact-bill tfoot td{border-top:0.3mm solid #0B2148; font-weight:800; font-size:2.1mm; color:#0B2148;}
     .compact-bill .cb-note{font-size:1.9mm; color:#3A4356; margin-bottom:0.8mm;}
-    .compact-bill .cb-total{font-size:2.7mm; font-weight:800; color:#0B2148; margin:0.4mm 0 1.4mm; text-align:right;}
-    .compact-bill .cb-foot{display:flex; justify-content:space-between; align-items:center; margin-top:auto; gap:2.5mm;}
-    .compact-bill .cb-pay{display:flex; align-items:center; gap:2mm;}
-    .compact-bill .cb-qr{width:15mm; height:15mm; flex-shrink:0;}
-    .compact-bill .cb-pay-info{display:flex; flex-direction:column; gap:0.3mm;}
-    .compact-bill .cb-upi-label{margin-bottom:0.4mm;}
-    .compact-bill .cb-upi{display:inline-block; width:fit-content; background:#FFF3C4; color:#7A5300; font-weight:800; font-size:2mm; padding:0.5mm 1.6mm; border-radius:1mm; margin:0.3mm 0;}
-    .compact-bill .cb-mobile{font-size:1.9mm; color:#3A4356; margin-top:0.5mm; display:flex; align-items:center; gap:1.2mm;}
-    .compact-bill .cb-sign{text-align:center; font-size:1.6mm; color:#647087; max-width:32mm;}
-    .compact-bill .cb-sign .sig-line{border-top:0.25mm solid #C9D3E3; padding-top:0.6mm; margin-top:3mm; line-height:1.3;}
+    .compact-bill .cb-foot{display:flex; justify-content:space-between; align-items:center; margin-top:auto; gap:1.6mm; flex-wrap:wrap;}
+    .compact-bill .cb-pay{display:flex; align-items:center; gap:1.4mm;}
+    .compact-bill .cb-qr{width:12mm; height:12mm; flex-shrink:0;}
+    .compact-bill .cb-pay-info{display:flex; flex-direction:column; gap:0.2mm;}
+    .compact-bill .cb-upi-label{margin-bottom:0.2mm;}
+    .compact-bill .cb-payee{font-weight:700; font-size:1.8mm; color:#0B2148;}
+    .compact-bill .cb-upi{display:inline-block; width:fit-content; background:#FFF3C4; color:#7A5300; font-weight:800; font-size:1.8mm; padding:0.4mm 1.4mm; border-radius:1mm; margin:0.2mm 0;}
+    .compact-bill .cb-amount{font-size:1.8mm; color:#3A4356;}
+    .compact-bill .cb-billno .badge{display:inline-block; background:#0B2148; color:#fff; font-size:1.7mm; font-weight:700; padding:0.5mm 1.4mm; border-radius:1mm;}
+    .compact-bill .cb-mobile{font-size:1.8mm; color:#3A4356; display:flex; flex-direction:column; align-items:center; gap:0.4mm;}
+    .compact-bill .cb-mobile b{color:#0B2148;}
+    .compact-bill .cb-sign{text-align:center; font-size:1.6mm; color:#647087; max-width:26mm;}
+    .compact-bill .cb-sign .sig-line{border-top:0.25mm solid #C9D3E3; padding-top:0.6mm; line-height:1.3;}
 
     @media print{
       @page{ size:A5; margin:0; }
@@ -4207,6 +4266,16 @@ function within(dateStr, from, to){
 
 function aggregateSubAreaName(s){ return s.subAreaName || '—'; }
 
+function subscriberAreaCodeByParty(partyCode){
+  const s = state.subscribers.find(x=>x.partyCode===partyCode);
+  return s ? formattedAreaCode(s.areaCode, s.areaName) : '—';
+}
+
+function formattedAreaCode(areaCode, areaName){
+  if(!areaCode && !areaName) return '—';
+  return `${areaBillCode(areaCode, areaName)} || ${areaName||'—'}`;
+}
+
 const REPORTS = {
   'rpt-magazine-list': {
     title:'Magazine List', hasDate:false,
@@ -4219,13 +4288,13 @@ const REPORTS = {
   },
   'rpt-subscriberwise': {
     title:'Subscriberwise Magazine List', hasDate:true, dateNote:'Filters by each subscriber\'s Start Date.',
-    columns:[['subscriber','Subscriber'],['magazine','Magazine'],['startDate','Start Date'],['status','Status']],
+    columns:[['subscriber','Subscriber'],['areaCode','Area Code'],['magazine','Magazine'],['startDate','Start Date'],['status','Status']],
     getRows(from,to){
       const rows=[];
       state.subscribers.forEach(s=>{
         if(!within(s.startDate,from,to)) return;
         s.items.forEach(it=>rows.push({
-          subscriber:`${s.partyName} (${s.partyCode})`, magazine:it.magazineName,
+          subscriber:`${s.partyName} (${s.partyCode})`, areaCode:formattedAreaCode(s.areaCode, s.areaName), magazine:it.magazineName,
           startDate: formatDateDisplay(s.startDate), status:s.activeState
         }));
       });
@@ -4235,7 +4304,7 @@ const REPORTS = {
   'rpt-areawise-geo': {
     title:"Areawise Today's Geo List", hasDate:true, dateDefaultToday:true,
     dateNote:'Sums each subscriber\'s scheduled copies across every day in the range (defaults to today).',
-    columns:[['area','Area'],['route','Sub Area'],['subscriber','Subscriber'],['copies','Copies']],
+    columns:[['area','Area'],['areaCode','Area Code'],['route','Sub Area'],['subscriber','Subscriber'],['copies','Copies']],
     getRows(from,to){
       const dates = dateRangeArray(from||todayISO(), to||from||todayISO());
       const rows=[];
@@ -4246,55 +4315,55 @@ const REPORTS = {
           const day = weekdayKeyForDate(dt);
           s.items.forEach(it=>{ copies += Number(it.qty[day]||0); });
         });
-        if(copies>0){ rows.push({ area:s.areaName, route:aggregateSubAreaName(s), subscriber:s.partyName, copies }); }
+        if(copies>0){ rows.push({ area:s.areaName, areaCode:formattedAreaCode(s.areaCode, s.areaName), route:aggregateSubAreaName(s), subscriber:s.partyName, copies }); }
       });
       return rows;
     }
   },
   'rpt-areawise-line': {
     title:'Areawise Subscriber Line List', hasDate:true, dateNote:'Filters by each subscriber\'s Entry Date.',
-    columns:[['area','Area'],['lineNo','Line No'],['subscriber','Subscriber']],
+    columns:[['area','Area'],['areaCode','Area Code'],['lineNo','Line No'],['subscriber','Subscriber']],
     getRows(from,to){
       const filtered = state.subscribers.filter(s=>within(s.entryDate,from,to));
       const sorted = [...filtered].sort((a,b)=> a.areaName.localeCompare(b.areaName) || a.partyCode.localeCompare(b.partyCode));
       const counters = {};
       return sorted.map(s=>{
         counters[s.areaName] = (counters[s.areaName]||0)+1;
-        return { area:s.areaName, lineNo:counters[s.areaName], subscriber:`${s.partyName} (${s.partyCode})` };
+        return { area:s.areaName, areaCode:formattedAreaCode(s.areaCode, s.areaName), lineNo:counters[s.areaName], subscriber:`${s.partyName} (${s.partyCode})` };
       });
     }
   },
   'rpt-areawise-detailed': {
     title:'Areawise Subscriber Detailed List', hasDate:true, dateNote:'Filters by each subscriber\'s Entry Date.',
-    columns:[['area','Area'],['subscriber','Subscriber'],['magazine','Magazine'],['address','Address']],
+    columns:[['area','Area'],['areaCode','Area Code'],['subscriber','Subscriber'],['magazine','Magazine'],['address','Address']],
     getRows(from,to){
       const rows=[];
       state.subscribers.forEach(s=>{
         if(!within(s.entryDate,from,to)) return;
         const address = [s.address1,s.address2].filter(Boolean).join(', ');
-        s.items.forEach(it=>rows.push({ area:s.areaName, subscriber:s.partyName, magazine:it.magazineName, address }));
+        s.items.forEach(it=>rows.push({ area:s.areaName, areaCode:formattedAreaCode(s.areaCode, s.areaName), subscriber:s.partyName, magazine:it.magazineName, address }));
       });
       return rows;
     }
   },
   'rpt-areawise-details': {
     title:'Areawise Subscriber Details', hasDate:true, dateNote:'Filters by each subscriber\'s Entry Date.',
-    columns:[['area','Area'],['subscriber','Subscriber'],['contact','Contact'],['status','Status']],
+    columns:[['area','Area'],['areaCode','Area Code'],['subscriber','Subscriber'],['contact','Contact'],['status','Status']],
     getRows(from,to){
       return state.subscribers.filter(s=>within(s.entryDate,from,to)).map(s=>({
-        area:s.areaName, subscriber:s.partyName, contact:s.phone||'—', status:s.activeState
+        area:s.areaName, areaCode:formattedAreaCode(s.areaCode, s.areaName), subscriber:s.partyName, contact:s.phone||'—', status:s.activeState
       }));
     }
   },
   'rpt-individual-list': {
     title:'Individual List', hasDate:true, dateNote:'Filters by Sales Posting date.',
-    columns:[['subscriber','Subscriber'],['magazine','Magazine'],['qty','Qty'],['amount','Amount']],
+    columns:[['subscriber','Subscriber'],['areaCode','Area Code'],['magazine','Magazine'],['qty','Qty'],['amount','Amount']],
     getRows(from,to){
       const rows=[];
       state.sales.forEach(rec=>{
         if(!within(rec.date,from,to)) return;
         rec.items.forEach(it=>rows.push({
-          subscriber:`${it.customerName} (${it.customerCode})`, magazine:it.magazineName,
+          subscriber:`${it.customerName} (${it.customerCode})`, areaCode:subscriberAreaCodeByParty(it.customerCode), magazine:it.magazineName,
           qty:it.qty, amount:fmtMoney(it.amount)
         }));
       });
@@ -4303,7 +4372,7 @@ const REPORTS = {
   },
   'rpt-paymentwise': {
     title:'Payment Wise Subscriber List', hasDate:true, dateNote:'Filters which bills are counted, by Bill Date.',
-    columns:[['subscriber','Subscriber'],['amountDue','Amount Due'],['lastPaid','Last Paid'],['status','Status']],
+    columns:[['subscriber','Subscriber'],['areaCode','Area Code'],['amountDue','Amount Due'],['lastPaid','Last Paid'],['status','Status']],
     getRows(from,to){
       const byParty = {};
       state.bills.filter(b=>within(b.date,from,to)).forEach(b=>{
@@ -4313,7 +4382,7 @@ const REPORTS = {
         else { p.due += Number(b.amount||0); }
       });
       return Object.entries(byParty).map(([code,p])=>({
-        subscriber:`${p.partyName} (${code})`, amountDue:fmtMoney(p.due),
+        subscriber:`${p.partyName} (${code})`, areaCode:subscriberAreaCodeByParty(code), amountDue:fmtMoney(p.due),
         lastPaid: p.lastPaid ? formatDateDisplay(p.lastPaid) : '—', status: p.due>0 ? 'Unpaid' : 'Paid'
       }));
     }
@@ -4335,10 +4404,10 @@ const REPORTS = {
   },
   'rpt-subscriber-payment': {
     title:'Subscriber Payment Details', hasDate:true, dateNote:'Filters by the date each bill was paid.',
-    columns:[['subscriber','Subscriber'],['date','Date'],['amount','Amount'],['mode','Mode']],
+    columns:[['subscriber','Subscriber'],['areaCode','Area Code'],['date','Date'],['amount','Amount'],['mode','Mode']],
     getRows(from,to){
       return state.bills.filter(b=>b.status==='Paid' && within(b.date,from,to)).map(b=>({
-        subscriber:`${b.partyName} (${b.partyCode})`, date:formatDateDisplay(b.date),
+        subscriber:`${b.partyName} (${b.partyCode})`, areaCode:subscriberAreaCodeByParty(b.partyCode), date:formatDateDisplay(b.date),
         amount:fmtMoney(b.amount), mode:b.paymentMode
       }));
     }
@@ -4346,7 +4415,7 @@ const REPORTS = {
   'rpt-complaint': {
     title:'Complaint Details', hasDate:true, dateNote:'Filters by the date a complaint was logged.',
     dataCaveat:'There\'s no Complaint Entry module yet, so nothing has been logged.',
-    columns:[['date','Date'],['subscriber','Subscriber'],['issue','Issue'],['status','Status']],
+    columns:[['date','Date'],['subscriber','Subscriber'],['areaCode','Area Code'],['issue','Issue'],['status','Status']],
     getRows(){ return []; }
   },
   'rpt-supplier-purchase': {
@@ -4403,7 +4472,7 @@ function renderReportModule(id){
   }
 
   const theadCells = def.columns.map(([,label])=>`<th>${label}</th>`).join('');
-  const bodyRows = rows.length ? rows.map(r=>`<tr>${def.columns.map(([key])=>`<td>${esc(r[key]??'—')}</td>`).join('')}</tr>`).join('')
+  const bodyRows = rows.length ? rows.map(r=>`<tr>${def.columns.map(([key])=>`<td${key==='areaCode'?' style="font-family:var(--font-mono);"':''}>${esc(r[key]??'—')}</td>`).join('')}</tr>`).join('')
     : `<tr><td colspan="${def.columns.length}"><div class="empty-note"><b>No records found</b>${def.dataCaveat ? def.dataCaveat : 'Try widening the date range or clearing the search.'}</div></td></tr>`;
 
   content.innerHTML = `
