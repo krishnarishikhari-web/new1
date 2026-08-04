@@ -1784,15 +1784,58 @@ function saveSubscriber(){
   clearFieldErrors();
   if(!subDraft.partyName || !subDraft.partyName.trim()){ return fieldError('subPartyNameInput','Party Name is required.'); }
   if(!subDraft.areaCode){ return fieldError('subAreaCodeSelect','Please select an Area Code.'); }
+  const isEdit = !!subDraft.id;
+  const oldPartyCode = isEdit ? (state.subscribers.find(s=>s.id===subDraft.id)||{}).partyCode : null;
+  let updatedCount = 0;
   if(subDraft.id){
     const idx = state.subscribers.findIndex(s=>s.id===subDraft.id);
     state.subscribers[idx] = JSON.parse(JSON.stringify(subDraft));
+    updatedCount = syncBillsForSubscriber(state.subscribers[idx], oldPartyCode);
   } else {
     subDraft.id = subDraft.partyCode;
     state.subscribers.push(JSON.parse(JSON.stringify(subDraft)));
   }
-  showToast(`Subscriber "${subDraft.partyName}" saved.`);
+  const billNote = updatedCount>0 ? ` ${updatedCount} sales bill${updatedCount===1?'':'s'} refreshed automatically.` : '';
+  showToast(`Subscriber "${subDraft.partyName}" saved.${billNote}`);
   closeSubscriberForm();
+}
+
+// Keeps existing Sales Bill records in sync whenever a subscriber's master
+// data changes — it only ever UPDATES rows already in state.bills, it never
+// creates new bill rows, so no duplicates are ever generated here.
+function syncBillsForSubscriber(sub, oldPartyCode){
+  const code = oldPartyCode || sub.partyCode;
+  const linkedBills = state.bills.filter(b=>b.partyCode===code);
+  if(linkedBills.length===0) return 0;
+
+  linkedBills.forEach(b=>{
+    // Always keep descriptive/display fields current, on every bill
+    // (paid or unpaid) so old records don't show stale details.
+    b.partyCode   = sub.partyCode;
+    b.partyName   = sub.partyName;
+    b.areaName    = sub.areaName;
+    b.subAreaName = sub.subAreaName;
+    b.address1    = sub.address1;
+    b.address2    = sub.address2;
+    b.doorNo      = sub.doorNo;
+    b.pincode     = sub.pincode;
+
+    // Only recalculate money on bills that haven't been collected yet —
+    // a Paid bill's amount must never move after the fact.
+    if(b.status==='Unpaid'){
+      const dates = dateRangeArray(b.periodStart, b.periodEnd);
+      const deliveryAmount = computeSubscriberBillAmount(sub, dates);
+      const serviceCharge = Number(sub.serviceCharge||0);
+      const openBalance = Number(sub.openBalance||0);
+      b.deliveryAmount = deliveryAmount;
+      b.serviceCharge = serviceCharge;
+      b.openBalance = openBalance;
+      b.deposit = Number(sub.deposit||0);
+      b.breakdown = computeSubscriberMagazineBreakdown(sub, dates);
+      b.amount = Math.round(deliveryAmount + serviceCharge + openBalance);
+    }
+  });
+  return linkedBills.length;
 }
 
 function confirmDeleteSubscriber(id){
