@@ -773,6 +773,7 @@
   .kpi-card:hover, .card:hover{box-shadow:0 6px 18px -8px rgba(11,33,72,0.18); transform:translateY(-1px);}
   table.skeleton-table.scroll-table thead th{position:sticky; top:0; z-index:2;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -806,7 +807,7 @@
   <div class="company-wrap">
     <div class="page-eyebrow">Step 2 of 2 · Company Module</div>
     <h1 class="page-title">Set Up Your Agency Profile</h1>
-    <p class="page-desc">This appears on bills, reports and the dashboard masthead. Add your UPI ID to generate a scannable payment QR for collections.</p>
+    <p class="page-desc">This appears on bills, reports and the dashboard masthead. Add a Payee Name and UPI ID to generate a scannable payment QR for collections — the Payee Name is what shows on invoices instead of the raw UPI ID.</p>
 
     <div class="company-grid">
       <div class="card">
@@ -844,8 +845,19 @@
         </div>
         <hr class="rule" style="margin:20px 0;">
         <div class="field">
+          <label for="cPayeeName">Payee Name (shown on invoices)</label>
+          <input id="cPayeeName" type="text" placeholder="e.g. Sri Balaji News Agency" oninput="refreshQR()">
+        </div>
+        <div class="field">
           <label for="cUpi">UPI ID (for collections QR)</label>
           <input id="cUpi" type="text" placeholder="agency@okaxis" oninput="refreshQR()">
+        </div>
+        <div class="field">
+          <label for="cRoundBill">Round Bill Total to Nearest ₹10</label>
+          <select id="cRoundBill">
+            <option value="No">No — use exact amount</option>
+            <option value="Yes">Yes — round the final total (e.g. ₹288 → ₹290)</option>
+          </select>
         </div>
         <div class="form-actions">
           <button class="btn btn-ghost" onclick="skipCompany()" type="button">Skip for now</button>
@@ -981,7 +993,7 @@ const MENU = [
 
 let state = {
   loggedIn:false,
-  company:{ name:'', phone:'', email:'', address:'', gst:'', fy:'2026-2027', upi:'' },
+  company:{ name:'', phone:'', email:'', address:'', gst:'', fy:'2026-2027', upi:'', payeeName:'', roundBillTotal:'No' },
   activeItem:'dashboard',
   openGroup:'master',
   masters:{
@@ -999,9 +1011,9 @@ let state = {
         rates:{sun:6,mon:6,tue:6,wed:6,thu:6,fri:6,sat:6} },
       { code:'MAG-003', name:'Sports Today', magType:'Weekly', shortName1:'SPTDY', shortName2:'Sp.Today', supplyStatus:'Supply', commission:12,
         rates:{sun:20,mon:20,tue:20,wed:20,thu:20,fri:20,sat:20} },
-      { code:'MAG-004', name:'Womens World', magType:'Monthly', shortName1:'WMNWD', shortName2:'W.World', supplyStatus:'Direct', commission:15,
+      { code:'MAG-004', name:'Womens World', magType:'Monthly Once', shortName1:'WMNWD', shortName2:'W.World', supplyStatus:'Direct', commission:15,
         rates:{sun:45,mon:45,tue:45,wed:45,thu:45,fri:45,sat:45} },
-      { code:'MAG-005', name:'Kids Comics', magType:'Monthly', shortName1:'KDCMC', shortName2:'K.Comics', supplyStatus:'Direct', commission:15,
+      { code:'MAG-005', name:'Kids Comics', magType:'Monthly Once', shortName1:'KDCMC', shortName2:'K.Comics', supplyStatus:'Direct', commission:15,
         rates:{sun:30,mon:30,tue:30,wed:30,thu:30,fri:30,sat:30} },
     ],
     suppliers:[
@@ -1152,15 +1164,16 @@ function handleLogin(e){
    ============================================================ */
 function refreshQR(){
   const name = document.getElementById('cName').value.trim();
+  const payeeName = document.getElementById('cPayeeName').value.trim();
   const upi = document.getElementById('cUpi').value.trim();
   const box = document.getElementById('qrBox');
   const tag = document.getElementById('qrUpiTag');
   if(upi){
-    const payee = encodeURIComponent(name || 'Distribution Agency');
+    const payee = encodeURIComponent(payeeName || name || 'Distribution Agency');
     const uri = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${payee}&cu=INR`;
     const imgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(uri)}`;
     box.innerHTML = `<img src="${imgSrc}" alt="UPI QR Code" onerror="this.parentElement.innerHTML='<div class=qr-placeholder>QR preview needs an internet connection.<br>UPI link is still saved.</div>'">`;
-    tag.innerHTML = `<div class="qr-upi">${upi}</div>`;
+    tag.innerHTML = `<div class="qr-upi">${esc(payeeName || name || 'Distribution Agency')}</div>`;
   } else {
     box.innerHTML = `<div class="qr-placeholder">Enter company name<br>&amp; UPI ID to preview QR</div>`;
     tag.innerHTML = '';
@@ -1174,7 +1187,16 @@ function saveCompany(){
   state.company.address = document.getElementById('cAddress').value.trim();
   state.company.gst = document.getElementById('cGst').value.trim();
   state.company.fy = document.getElementById('cFY').value;
+  state.company.payeeName = document.getElementById('cPayeeName').value.trim();
   state.company.upi = document.getElementById('cUpi').value.trim();
+  const oldRoundSetting = state.company.roundBillTotal;
+  state.company.roundBillTotal = document.getElementById('cRoundBill').value;
+  if(state.company.roundBillTotal!==oldRoundSetting){
+    const updated = recalcAllUnpaidBills();
+    if(updated>0){
+      showToast(`Rounding rule changed — ${updated} unpaid bill${updated===1?'':'s'} recalculated.`);
+    }
+  }
   enterApp();
 }
 function skipCompany(){ enterApp(); }
@@ -1187,7 +1209,9 @@ function openCompanyEditor(){
   document.getElementById('cEmail').value = state.company.email || '';
   document.getElementById('cAddress').value = state.company.address || '';
   document.getElementById('cGst').value = state.company.gst || '';
+  document.getElementById('cPayeeName').value = state.company.payeeName || '';
   document.getElementById('cUpi').value = state.company.upi || '';
+  document.getElementById('cRoundBill').value = state.company.roundBillTotal || 'No';
   refreshQR();
 }
 
@@ -1358,7 +1382,7 @@ function dashboardHTML(){
   const subscriberCount = state.subscribers.length;
   const todaysPurchase = state.purchases.filter(p=>p.date===today).reduce((a,p)=>a+Number(p.totalAmount||0),0);
   const todaysCounterSales = (state.counterSales||[]).filter(c=>c.date===today).reduce((a,c)=>a+Number(c.totalAmount||0),0);
-  const outstandingTotal = state.bills.filter(b=>b.status!=='Paid').reduce((a,b)=>a+Number(b.amount||0),0);
+  const outstandingTotal = state.bills.filter(b=>b.status!=='Paid').reduce((a,b)=>a+billAmount(b),0);
 
   const despatchRows = todaysDespatchByMagazine();
   const totalCopies = despatchRows.reduce((a,r)=>a+r.copies,0);
@@ -1547,6 +1571,35 @@ function esc(v){
 function fmtMoney(n){
   const num = Number(n||0);
   return '₹' + num.toFixed(2);
+}
+
+/* Single source of truth for what a bill is worth. Recomputes from the live
+   delivery/service/open-balance fields (same formula the printed invoice uses)
+   so the Amount shown on Bill Status, Bill Collection, reports, etc. can never
+   drift from the amount that actually prints on the invoice. Falls back to the
+   stored .amount for any legacy record missing the breakdown fields. If the
+   company's "Round Bill Total" setting is on, the final total is additionally
+   rounded to the nearest ₹10 (e.g. ₹288 -> ₹290) for easy cash collection. */
+// Single source of truth for how a raw rupee total gets rounded for display/
+// collection. Used both for the bill's grand total (billAmount) and for the
+// per-magazine breakdown row so the two can never drift apart again.
+function roundBillAmount(total){
+  if(state.company.roundBillTotal==='Yes'){
+    return Math.round(total/10)*10;
+  }
+  return Math.round(total);
+}
+
+function billAmount(b){
+  // .amount is rounded ONCE, at bill build/sync time, using whatever the
+  // company's rounding setting was at that moment — the same moment
+  // computeSubscriberMagazineBreakdown() rounds the row. Trusting it here
+  // (instead of re-deriving rounding from today's live company setting)
+  // keeps the footer total and the row value locked together forever,
+  // even if someone changes the Round Bill Total setting afterwards.
+  if(b.amount!=null) return Number(b.amount);
+  const total = Number(b.deliveryAmount||0) + Number(b.serviceCharge||0) + Number(b.openBalance||0);
+  return roundBillAmount(total);
 }
 
 /* ============================================================
@@ -1800,6 +1853,46 @@ function saveSubscriber(){
   closeSubscriberForm();
 }
 
+// Recalculates every money field on a single bill from its subscriber's
+// current data — deliveryAmount, breakdown (rounding + extras baked in),
+// and the frozen total. This is the ONE place bill money gets computed;
+// both syncBillsForSubscriber (one subscriber) and recalcAllUnpaidBills
+// (every Unpaid bill, e.g. after the Round Bill Total setting changes)
+// call this, so the two can never drift out of sync with each other.
+// A Paid bill's amount must never move after the fact, so this is a no-op
+// unless the bill is still Unpaid.
+function recalcBillMoney(b, sub){
+  if(b.status!=='Unpaid') return false;
+  const dates = dateRangeArray(b.periodStart, b.periodEnd);
+  const deliveryAmount = computeSubscriberBillAmount(sub, dates);
+  const serviceCharge = Number(sub.serviceCharge||0);
+  const openBalance = Number(sub.openBalance||0);
+  b.deliveryAmount = deliveryAmount;
+  b.serviceCharge = serviceCharge;
+  b.openBalance = openBalance;
+  b.deposit = Number(sub.deposit||0);
+  b.breakdown = computeSubscriberMagazineBreakdown(sub, dates, serviceCharge + openBalance);
+  b.amount = roundBillAmount(deliveryAmount + serviceCharge + openBalance);
+  return true;
+}
+
+// Re-freezes every Unpaid bill's amount/breakdown using whatever rounding
+// rule (and subscriber data) is current right now. Called automatically
+// whenever the Round Bill Total setting is changed on the Company page, so
+// existing Unpaid invoices pick up the new rule immediately instead of
+// silently staying frozen at the old one until someone happens to re-save
+// that particular subscriber. Paid bills are never touched.
+function recalcAllUnpaidBills(){
+  let count = 0;
+  state.bills.forEach(b=>{
+    if(b.status!=='Unpaid') return;
+    const sub = state.subscribers.find(s=>s.partyCode===b.partyCode);
+    if(!sub) return; // subscriber deleted — leave the bill as last calculated
+    if(recalcBillMoney(b, sub)) count++;
+  });
+  return count;
+}
+
 // Keeps existing Sales Bill records in sync whenever a subscriber's master
 // data changes — it only ever UPDATES rows already in state.bills, it never
 // creates new bill rows, so no duplicates are ever generated here.
@@ -1819,21 +1912,7 @@ function syncBillsForSubscriber(sub, oldPartyCode){
     b.address2    = sub.address2;
     b.doorNo      = sub.doorNo;
     b.pincode     = sub.pincode;
-
-    // Only recalculate money on bills that haven't been collected yet —
-    // a Paid bill's amount must never move after the fact.
-    if(b.status==='Unpaid'){
-      const dates = dateRangeArray(b.periodStart, b.periodEnd);
-      const deliveryAmount = computeSubscriberBillAmount(sub, dates);
-      const serviceCharge = Number(sub.serviceCharge||0);
-      const openBalance = Number(sub.openBalance||0);
-      b.deliveryAmount = deliveryAmount;
-      b.serviceCharge = serviceCharge;
-      b.openBalance = openBalance;
-      b.deposit = Number(sub.deposit||0);
-      b.breakdown = computeSubscriberMagazineBreakdown(sub, dates);
-      b.amount = Math.round(deliveryAmount + serviceCharge + openBalance);
-    }
+    recalcBillMoney(b, sub);
   });
   return linkedBills.length;
 }
@@ -1979,7 +2058,7 @@ function blankMagDraft(){
   const nextNum = 1 + state.masters.magazines.length;
   return {
     code:'MAG-'+String(nextNum).padStart(3,'0'), name:'', magType:'Daily',
-    shortName1:'', shortName2:'', supplyStatus:'Supply', commission:0, rounded:'No',
+    shortName1:'', shortName2:'', supplyStatus:'Supply', commission:0,
     rates:{sun:0,mon:0,tue:0,wed:0,thu:0,fri:0,sat:0}
   };
 }
@@ -2004,7 +2083,7 @@ function magazineListHTML(){
       </div>
       <table class="skeleton-table">
         <thead><tr>
-          <th>Magazine Code</th><th>Magazine Name</th><th>Type</th><th>Supply Status</th><th>Commission</th><th>Rounded</th><th>Purchased</th><th>Sold</th><th style="text-align:right;">Actions</th>
+          <th>Magazine Code</th><th>Magazine Name</th><th>Type</th><th>Supply Status</th><th>Commission</th><th>Purchased</th><th>Sold</th><th style="text-align:right;">Actions</th>
         </tr></thead>
         <tbody id="magTableBody"></tbody>
       </table>
@@ -2025,7 +2104,7 @@ function renderMagazineTableBody(){
   if(count) count.textContent = `${list.length} magazine${list.length===1?'':'s'}`;
   if(!tbody) return;
   if(list.length===0){
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-note"><b>No magazines found</b>Try a different search, or add a new magazine.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-note"><b>No magazines found</b>Try a different search, or add a new magazine.</div></td></tr>`;
     document.getElementById('magPagination').innerHTML='';
     return;
   }
@@ -2040,7 +2119,6 @@ function renderMagazineTableBody(){
       <td>${esc(m.magType)}</td>
       <td>${esc(m.supplyStatus)}</td>
       <td>${fmtMoney(m.commission||0)}</td>
-      <td>${m.rounded==='Yes' ? '✓ Yes' : 'No'}</td>
       <td>${stats.purchased}</td>
       <td>${stats.sold}</td>
       <td style="text-align:right; white-space:nowrap;">
@@ -2065,7 +2143,6 @@ function openMagazineForm(code, readonly){
     const rec = state.masters.magazines.find(m=>m.code===code);
     magDraft = JSON.parse(JSON.stringify(rec));
     if(magDraft.commission===undefined || magDraft.commission===null || magDraft.commission===''){ magDraft.commission = 0; }
-    if(magDraft.rounded===undefined || magDraft.rounded===null || magDraft.rounded===''){ magDraft.rounded = 'No'; }
   } else {
     magDraft = blankMagDraft();
   }
@@ -2114,14 +2191,11 @@ function magazineFormHTML(){
   const ro = state.magUI.readonly;
   const dis = ro ? 'disabled' : '';
   const isNew = !state.magUI.editingId;
-  const typeOptions = ['Daily','Weekly','Fortnightly','Monthly'].map(t=>
+  const typeOptions = ['Daily','Weekly','15 Days Once','Monthly Once'].map(t=>
     `<option value="${t}" ${d.magType===t?'selected':''}>${t}</option>`
   ).join('');
   const supplyOptions = ['Supply','Direct'].map(s=>
     `<option value="${s}" ${d.supplyStatus===s?'selected':''}>${s}</option>`
-  ).join('');
-  const roundedOptions = ['No','Yes'].map(r=>
-    `<option value="${r}" ${d.rounded===r?'selected':''}>${r}</option>`
   ).join('');
   const daysA = ['sun','mon','tue','wed'];
   const daysB = ['thu','fri','sat'];
@@ -2141,7 +2215,6 @@ function magazineFormHTML(){
         <div class="old-style-row"><label>Short Name 2</label><input type="text" value="${esc(d.shortName2)}" ${dis} oninput="updateMagDraft('shortName2',this.value)"></div>
         <div class="old-style-row"><label>Supply Status</label><select ${dis} onchange="updateMagDraft('supplyStatus',this.value)">${supplyOptions}</select></div>
         <div class="old-style-row"><label>Commission</label><input type="number" step="0.01" value="${d.commission||0}" ${dis} oninput="updateMagDraftNum('commission',this.value)"></div>
-        <div class="old-style-row"><label>Rounded</label><select ${dis} onchange="updateMagDraft('rounded',this.value)">${roundedOptions}</select></div>
       </div>
 
       <div class="card">
@@ -3410,8 +3483,7 @@ function computeSubscriberBillAmount(sub, dates){
       if(qty>0){
         const mag = state.masters.magazines.find(m=>m.code===it.magazineCode);
         const rate = mag && mag.rates ? Number(mag.rates[day]||0) : 0;
-        let lineAmount = qty*rate;
-        if(mag && mag.rounded==='Yes'){ lineAmount = Math.round(lineAmount); }
+        const lineAmount = qty*rate;
         amount += lineAmount;
       }
     });
@@ -3421,7 +3493,17 @@ function computeSubscriberBillAmount(sub, dates){
 
 // Per-magazine copy count + value across a date range, for the printable
 // ledger-style bill (S.No / Magazine Name / No. of Qty / Value).
-function computeSubscriberMagazineBreakdown(sub, dates){
+//
+// extraAmt (serviceCharge + openBalance) is folded into the LAST row here,
+// once, at bill build/sync time — this is the only place that ever touches
+// row.value, so the rows always sum to exactly billAmount(b). Formula:
+//   row.value            = Σ over each non-held day: qty[weekday] × rate[weekday]
+//   last row's value      = (its own Σ above) + extraAmt, then the rounding
+//                           difference vs. the rounded grand total is
+//                           absorbed into that same last row so
+//                           Σ(row.value) === roundBillAmount(Σraw + extraAmt)
+function computeSubscriberMagazineBreakdown(sub, dates, extraAmt){
+  extraAmt = Number(extraAmt||0);
   const byMag = {}; // magazineCode -> { magazineName, qty, value }
   const periodStart = dates.length ? dates[0] : '';
   const periodEnd = dates.length ? dates[dates.length-1] : '';
@@ -3434,8 +3516,7 @@ function computeSubscriberMagazineBreakdown(sub, dates){
       if(qty>0){
         const mag = state.masters.magazines.find(m=>m.code===it.magazineCode);
         const rate = mag && mag.rates ? Number(mag.rates[day]||0) : 0;
-        let lineAmount = qty*rate;
-        if(mag && mag.rounded==='Yes'){ lineAmount = Math.round(lineAmount); }
+        const lineAmount = qty*rate;
         if(!byMag[it.magazineCode]){
           byMag[it.magazineCode] = {
             magazineName: it.magazineName, qty:0, value:0,
@@ -3449,7 +3530,24 @@ function computeSubscriberMagazineBreakdown(sub, dates){
       }
     });
   });
-  return Object.values(byMag);
+  const rows = Object.values(byMag);
+
+  if(!rows.length){
+    // No magazine lines at all (e.g. a bill that's pure service charge /
+    // old balance) — show the extra as its own row, still rounded.
+    if(extraAmt){
+      rows.push({ magazineName:'Old Balance', qty:'—', value: roundBillAmount(extraAmt) });
+    }
+    return rows;
+  }
+
+  if(extraAmt || state.company.roundBillTotal==='Yes'){
+    const rawMagTotal = rows.reduce((a,r)=>a+r.value,0);
+    const roundedGrandTotal = roundBillAmount(rawMagTotal + extraAmt);
+    const otherRowsSum = rows.slice(0,-1).reduce((a,r)=>a+r.value,0);
+    rows[rows.length-1].value = roundedGrandTotal - otherRowsSum;
+  }
+  return rows;
 }
 
 function coreNameForCode(partyName){
@@ -3499,8 +3597,8 @@ function prepareBillDraft(){
       const deliveryAmount = computeSubscriberBillAmount(s, dates);
       const serviceCharge = Number(s.serviceCharge||0); // folded into the total, never shown as its own line on the bill/invoice
       const openBalance = Number(s.openBalance||0);
-      const amount = Math.round(deliveryAmount + serviceCharge + openBalance);
-      const breakdown = computeSubscriberMagazineBreakdown(s, dates);
+      const amount = roundBillAmount(deliveryAmount + serviceCharge + openBalance);
+      const breakdown = computeSubscriberMagazineBreakdown(s, dates, serviceCharge + openBalance);
       return {
         partyCode:s.partyCode, partyName:s.partyName, areaCode:s.areaCode, areaName:s.areaName,
         subAreaName:s.subAreaName, address1:s.address1, address2:s.address2, doorNo:s.doorNo, pincode:s.pincode,
@@ -3640,7 +3738,7 @@ function processBill(){
       periodStart:r.periodStart, periodEnd:r.periodEnd, paymentMode:r.paymentMode,
       deliveryAmount:r.deliveryAmount, serviceCharge:r.serviceCharge, openBalance:r.openBalance,
       deposit:r.deposit, breakdown:r.breakdown,
-      amount: Math.round(r.amount), status:'Unpaid'
+      amount: r.amount, status:'Unpaid'
     });
   });
   const count = billDraft.length;
@@ -3738,7 +3836,7 @@ function partyPhone(partyCode){
 function upiPayLink(amount, note){
   const upi = state.company.upi;
   if(!upi) return '';
-  const payee = encodeURIComponent(state.company.name || 'Distribution Agency');
+  const payee = encodeURIComponent(state.company.payeeName || state.company.name || 'Distribution Agency');
   return `upi://pay?pa=${encodeURIComponent(upi)}&pn=${payee}&am=${Number(amount||0).toFixed(2)}&cu=INR&tn=${encodeURIComponent(note||'')}`;
 }
 function upiQrImage(amount, note, size){
@@ -3815,9 +3913,12 @@ function invoiceStyleBlock(){
 
 function buildInvoiceBodyHTML(b){
   const c = state.company;
-  const qrImg = upiQrImage(b.amount, 'Bill '+b.billNo, 220);
-  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown.slice() : [{ magazineName:'Delivery charges', qty:'—', value:Number(b.deliveryAmount||0) }];
-  if(Number(b.openBalance||0)!==0){ breakdown.push({ magazineName:'Old Balance', qty:'—', value:Number(b.openBalance||0) }); }
+  const qrImg = upiQrImage(billAmount(b), 'Bill '+b.billNo, 220);
+  // b.breakdown already has serviceCharge/openBalance folded into the last
+  // row and rounded to match billAmount(b) exactly (done once, at bill
+  // build/sync time in computeSubscriberMagazineBreakdown) — no further
+  // adjustment here, so repeated views/prints can never re-add it.
+  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown.map(row=>({...row})) : [{ magazineName:'Delivery charges', qty:'—', value: billAmount(b) }];
   const totalQty = breakdown.reduce((sum,row)=> sum + (Number(row.qty)||0), 0);
   const rowsHTML = breakdown.map((row,idx)=>`
         <tr>
@@ -3852,7 +3953,7 @@ function buildInvoiceBodyHTML(b){
     <table>
       <thead><tr><th class="c-sno">S.No</th><th>Magazine Name</th><th class="c-num">No. of Qty</th><th class="c-num">Amount</th></tr></thead>
       <tbody>${rowsHTML}</tbody>
-      <tfoot><tr><td colspan="2">Total</td><td class="c-num">${totalQty}</td><td class="c-num">₹${(Number(b.deliveryAmount||0)+Number(b.serviceCharge||0)+Number(b.openBalance||0)).toFixed(2)}</td></tr></tfoot>
+      <tfoot><tr><td colspan="2">Total</td><td class="c-num">${totalQty}</td><td class="c-num">₹${billAmount(b).toFixed(2)}</td></tr></tfoot>
     </table>
     <div class="inv-pay-row">
       ${qrImg ? `
@@ -3860,9 +3961,9 @@ function buildInvoiceBodyHTML(b){
         <img src="${qrImg}" width="90" height="90" alt="UPI QR" onerror="this.parentElement.style.display='none'">
         <div class="inv-pay-info">
           <span class="tag-badge">Google Pay</span><br>
-          UPI ID: <span class="upi-id-highlight">${esc(c.upi)}</span><br>
+          Payee Name: <span class="upi-id-highlight">${esc(c.payeeName || c.name || 'Distribution Agency')}</span><br>
           Mobile: ${esc(c.phone||'—')}<br>
-          Amount: ₹${Math.round(b.amount)}
+          Amount: ₹${billAmount(b)}
         </div>
       </div>` : `<div></div>`}
       <div class="inv-col inv-sign">
@@ -3902,9 +4003,12 @@ function openInvoice(billNo){
 
 function buildInvoiceBodyCompactHTML(b){
   const c = state.company;
-  const qrImg = upiQrImage(b.amount, 'Bill '+b.billNo, 160);
-  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown.slice() : [{ magazineName:'Delivery charges', qty:'—', value:Number(b.deliveryAmount||0) }];
-  if(Number(b.openBalance||0)!==0){ breakdown.push({ magazineName:'Old Balance', qty:'—', value:Number(b.openBalance||0) }); }
+  const qrImg = upiQrImage(billAmount(b), 'Bill '+b.billNo, 160);
+  // b.breakdown already has serviceCharge/openBalance folded into the last
+  // row and rounded to match billAmount(b) exactly (done once, at bill
+  // build/sync time in computeSubscriberMagazineBreakdown) — no further
+  // adjustment here, so repeated views/prints can never re-add it.
+  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown.map(row=>({...row})) : [{ magazineName:'Delivery charges', qty:'—', value: billAmount(b) }];
   const totalQty = breakdown.reduce((sum,row)=> sum + (Number(row.qty)||0), 0);
   const rowsHTML = breakdown.map(row=>`
         <tr>
@@ -3935,13 +4039,13 @@ function buildInvoiceBodyCompactHTML(b){
       <table>
         <thead><tr><th>Magazine</th><th class="c-num">Qty</th><th class="c-num">Amount</th></tr></thead>
         <tbody>${rowsHTML}</tbody>
-        <tfoot><tr><td>Total</td><td class="c-num">${totalQty}</td><td class="c-num">₹${(Number(b.deliveryAmount||0)+Number(b.serviceCharge||0)+Number(b.openBalance||0)).toFixed(2)}</td></tr></tfoot>
+        <tfoot><tr><td>Total</td><td class="c-num">${totalQty}</td><td class="c-num">₹${billAmount(b).toFixed(2)}</td></tr></tfoot>
       </table>
       <div class="cb-foot">
         <div class="cb-pay">
           ${qrImg ? `<img src="${qrImg}" class="cb-qr" alt="UPI QR" onerror="this.style.display='none'">` : ''}
           <div class="cb-pay-info">
-            ${c.upi ? `<div class="cb-upi-label badge-chip">Google Pay</div><div class="cb-upi">${esc(c.upi)}</div><div class="cb-mobile-inline">Mobile: ${esc(c.phone||'—')}</div><div class="cb-amount">Amt: ₹${Math.round(b.amount)}</div>` : ''}
+            ${c.upi ? `<div class="cb-upi-label badge-chip">Google Pay</div><div class="cb-payee">${esc(c.payeeName || c.name || 'Distribution Agency')}</div><div class="cb-mobile-inline">Mobile: ${esc(c.phone||'—')}</div><div class="cb-amount">Amt: ₹${billAmount(b)}</div>` : ''}
           </div>
         </div>
         <div class="cb-sign">
@@ -4064,9 +4168,28 @@ function printSelectedBills(){
 
 function buildBillWhatsAppMessage(b){
   const c = state.company;
-  let msg = `Dear ${b.partyName},\n\nYour subscription bill ${b.billNo} for ${formatDateDisplay(b.periodStart)} to ${formatDateDisplay(b.periodEnd)} is ready.\nAmount Payable: ₹${Math.round(b.amount)}\n`;
-  if(c.upi) msg += `Pay via UPI: ${c.upi}\n`;
-  msg += `\nThank you${c.name?' - '+c.name:''}.`;
+  // b.breakdown already has serviceCharge/openBalance folded into the last
+  // row and rounded to match billAmount(b) exactly (done once, at bill
+  // build/sync time in computeSubscriberMagazineBreakdown) — no further
+  // adjustment here, so repeated views/prints can never re-add it.
+  const breakdown = (b.breakdown && b.breakdown.length) ? b.breakdown.map(row=>({...row})) : [{ magazineName:'Delivery charges', qty:'—', value: billAmount(b) }];
+  const total = billAmount(b);
+
+  let msg = `*${c.name||'The Distribution Ledger'}*\n`;
+  if(c.address) msg += `${c.address}\n`;
+  if(c.phone) msg += `Ph: ${c.phone}\n`;
+  msg += `\n*INVOICE* — Bill No: ${b.billNo}\n`;
+  msg += `Date: ${formatDateDisplay(b.date)}\n`;
+  msg += `Period: ${formatBillPeriodLabel(b.periodStart, b.periodEnd)}\n`;
+  msg += `\nTo: ${b.partyName} (${b.partyCode})\n`;
+  msg += `\n*Bill Details:*\n`;
+  breakdown.forEach(row=>{
+    msg += `• ${row.magazineName} — Qty: ${row.qty} — ₹${Number(row.value||0).toFixed(2)}\n`;
+  });
+  msg += `\nDeposit: ₹${Number(b.deposit||0).toFixed(2)}\n`;
+  msg += `*Total Amount Payable: ₹${Math.round(total)}*\n`;
+  if(c.upi){ msg += `\nPay via UPI QR (Google Pay)\nPayee Name: ${c.payeeName || c.name || 'Distribution Agency'}\n`; }
+  msg += `\nThank you for your subscription${c.name?' - '+c.name:''}.`;
   return msg;
 }
 
@@ -4081,27 +4204,105 @@ function toggleBillSelectAll(checked){
   renderBillModule();
 }
 
-function sendBillWhatsApp(billNo){
-  const b = state.bills.find(x=>x.billNo===billNo);
-  if(!b) return;
-  const phone = normalizePhoneForWhatsApp(partyPhone(b.partyCode));
-  if(!phone){ showToast(`No phone number on file for ${b.partyName}. Add one via Subscriber Entry.`, 'error'); return; }
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildBillWhatsAppMessage(b))}`, '_blank');
+/* Renders the exact invoice template off-screen and captures it as a PNG image blob,
+   so what gets sent over WhatsApp is a pixel copy of the same invoice used for printing. */
+function generateInvoiceImageBlob(b){
+  return new Promise((resolve, reject)=>{
+    if(typeof html2canvas === 'undefined'){ reject(new Error('html2canvas not loaded')); return; }
+    const holder = document.createElement('div');
+    holder.style.position = 'fixed';
+    holder.style.left = '-10000px';
+    holder.style.top = '0';
+    holder.style.background = '#ffffff';
+    holder.innerHTML = `<style>${invoiceStyleBlock()}</style>${buildInvoiceBodyHTML(b)}`;
+    document.body.appendChild(holder);
+
+    const imgs = Array.from(holder.querySelectorAll('img'));
+    const whenLoaded = Promise.all(imgs.map(img => img.complete ? Promise.resolve() :
+      new Promise(res => { img.onload = res; img.onerror = res; })));
+
+    whenLoaded.then(()=>{
+      const target = holder.querySelector('.bill-box') || holder;
+      html2canvas(target, { scale:2, backgroundColor:'#ffffff', useCORS:true }).then(canvas=>{
+        document.body.removeChild(holder);
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not create image')), 'image/png');
+      }).catch(err=>{ document.body.removeChild(holder); reject(err); });
+    });
+  });
 }
 
-function sendSelectedBillsWhatsApp(){
+/* Sends the exact invoice image to a party's WhatsApp. Uses the native share sheet (with the
+   invoice PNG attached) when the browser supports sharing files; otherwise downloads the invoice
+   image and points the (already-open) WhatsApp tab at the chat so it can be attached manually.
+   preOpenedWindow must be opened synchronously on click — browsers silently block window.open()
+   calls made after async work like image generation, which is why this used to do nothing. */
+async function sendInvoiceImageToWhatsApp(b, phone, preOpenedWindow){
+  const blob = await generateInvoiceImageBlob(b);
+  const file = new File([blob], `Invoice-${b.billNo}.png`, { type:'image/png' });
+  if(navigator.canShare && navigator.canShare({ files:[file] })){
+    try{
+      await navigator.share({ files:[file], title:`Invoice ${b.billNo}`, text: buildBillWhatsAppMessage(b) });
+      if(preOpenedWindow && !preOpenedWindow.closed) preOpenedWindow.close();
+      return 'shared';
+    } catch(shareErr){
+      if(shareErr && shareErr.name === 'AbortError'){
+        if(preOpenedWindow && !preOpenedWindow.closed) preOpenedWindow.close();
+        return 'cancelled';
+      }
+      // fall through to the download + WhatsApp-chat path below
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `Invoice-${b.billNo}.png`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent('Your invoice image has been downloaded as Invoice-'+b.billNo+'.png — please attach it here.\n\n'+buildBillWhatsAppMessage(b))}`;
+  if(preOpenedWindow && !preOpenedWindow.closed){ preOpenedWindow.location.href = waUrl; }
+  else { window.open(waUrl, '_blank'); }
+  return 'downloaded';
+}
+
+async function sendBillWhatsApp(billNo){
+  const b = state.bills.find(x=>x.billNo===billNo);
+  if(!b){ showToast('That bill could not be found.', 'error'); return; }
+  const phone = normalizePhoneForWhatsApp(partyPhone(b.partyCode));
+  if(!phone){ showToast(`No phone number on file for ${b.partyName}. Add one via Subscriber Entry.`, 'error'); return; }
+  // Open the destination tab right now, synchronously, while the click still counts as a
+  // user gesture — this is what makes the WhatsApp hand-off reliable on mobile browsers.
+  const preOpened = window.open('about:blank', '_blank');
+  showToast('Preparing invoice image…');
+  try{
+    const result = await sendInvoiceImageToWhatsApp(b, phone, preOpened);
+    if(result==='shared') showToast(`Invoice image ready to send to ${b.partyName}.`);
+    else if(result==='cancelled') showToast('Share cancelled.');
+    else showToast(`Invoice image downloaded. Attach it in the WhatsApp chat with ${b.partyName}.`);
+  } catch(err){
+    console.error(err);
+    const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(buildBillWhatsAppMessage(b))}`;
+    if(preOpened && !preOpened.closed){ preOpened.location.href = waUrl; } else { window.open(waUrl, '_blank'); }
+    showToast('Could not generate the invoice image — sent the text version instead.', 'error');
+  }
+}
+
+async function sendSelectedBillsWhatsApp(){
   const sel = state.billUI.selected || [];
   if(sel.length===0){ showToast('Select at least one bill using the checkboxes first.', 'error'); return; }
   let sent = 0; const skipped = [];
-  sel.forEach(billNo=>{
+  for(const billNo of sel){
     const b = state.bills.find(x=>x.billNo===billNo);
-    if(!b) return;
+    if(!b) continue;
     const phone = normalizePhoneForWhatsApp(partyPhone(b.partyCode));
-    if(!phone){ skipped.push(b.partyName); return; }
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildBillWhatsAppMessage(b))}`, '_blank');
+    if(!phone){ skipped.push(b.partyName); continue; }
+    try{
+      await sendInvoiceImageToWhatsApp(b, phone);
+    } catch(err){
+      console.error(err);
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildBillWhatsAppMessage(b))}`, '_blank');
+    }
     sent++;
-  });
-  showToast(`Opened WhatsApp for ${sent} bill${sent===1?'':'s'}.${skipped.length?` Skipped (no phone on file): ${skipped.join(', ')}`:''}`);
+  }
+  showToast(`Prepared WhatsApp invoice${sent===1?'':'s'} for ${sent} bill${sent===1?'':'s'}.${skipped.length?` Skipped (no phone on file): ${skipped.join(', ')}`:''}`);
 }
 
 function viewBillStatus(){ state.billUI.view='status'; renderBillModule(); }
@@ -4120,7 +4321,7 @@ function billStatusHTML(){
       <td style="font-family:var(--font-mono);">${esc(b.partyCode)}</td>
       <td>${esc(b.partyName)}</td>
       <td>${formatDateDisplay(b.periodStart)} – ${formatDateDisplay(b.periodEnd)}</td>
-      <td>${Math.round(b.amount)}</td>
+      <td>${billAmount(b)}</td>
       <td>${b.status==='Paid' ? '<span style="color:var(--success);font-weight:600;">Paid</span>' : '<span style="color:var(--danger);">Unpaid</span>'}</td>
       <td style="text-align:right; white-space:nowrap;">
         <button class="row-action-btn" onclick="viewBillDetail('${b.billNo}')">View</button>
@@ -4146,7 +4347,7 @@ function billStatusHTML(){
       <table class="skeleton-table">
         <thead><tr>
           <th><input type="checkbox" ${allChecked?'checked':''} onchange="toggleBillSelectAll(this.checked)"></th>
-          <th>Bill No</th><th>Date</th><th>Party Code</th><th>Party Name</th><th>Period</th><th>Amount</th><th>Status</th><th style="text-align:right;">Actions</th>
+          <th>Bill No</th><th>Date</th><th>Party Code</th><th>Party Name</th><th>Period</th><th>Bill Amount</th><th>Status</th><th style="text-align:right;">Actions</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
@@ -4198,7 +4399,7 @@ function billDetailHTML(){
         <div class="old-style-row"><label>Delivery Amount</label><div style="padding:8px 0;">${fmtMoney(b.deliveryAmount||0)}</div></div>
         <div class="old-style-row"><label>Service Charge</label><div style="padding:8px 0;">${fmtMoney(b.serviceCharge||0)}</div></div>
         <div class="old-style-row"><label>Open Balance</label><div style="padding:8px 0;">${fmtMoney(b.openBalance||0)}</div></div>
-        <div class="old-style-row"><label>Total Amount</label><div style="padding:8px 0; font-weight:700; font-size:16px;">${Math.round(b.amount)}</div></div>
+        <div class="old-style-row"><label>Bill Amount</label><div style="padding:8px 0; font-weight:700; font-size:16px;">${billAmount(b)}</div></div>
       </div>
     </div>
     <div class="form-actions" style="margin-top:20px;">
@@ -4228,7 +4429,7 @@ function outstandingByParty(){
   const byParty = {};
   state.bills.filter(b=>b.status!=='Paid').forEach(b=>{
     if(!byParty[b.partyCode]){ byParty[b.partyCode] = { partyCode:b.partyCode, partyName:b.partyName, total:0, count:0 }; }
-    byParty[b.partyCode].total += Number(b.amount||0);
+    byParty[b.partyCode].total += billAmount(b);
     byParty[b.partyCode].count += 1;
   });
   return Object.values(byParty).sort((a,b)=>b.total-a.total);
@@ -4237,7 +4438,7 @@ function outstandingByParty(){
 function buildReminderWhatsAppMessage(row){
   const c = state.company;
   let msg = `Dear ${row.partyName},\n\nThis is a friendly reminder that you have ${row.count} unpaid bill${row.count===1?'':'s'} totaling ₹${Math.round(row.total)} with ${c.name||'us'}.\nKindly clear the dues at your earliest convenience.\n`;
-  if(c.upi) msg += `Pay via UPI: ${c.upi}\n`;
+  if(c.upi) msg += `Pay via UPI QR (Google Pay)\nPayee Name: ${c.payeeName || c.name || 'Distribution Agency'}\n`;
   msg += `\nThank you.`;
   return msg;
 }
@@ -4314,6 +4515,13 @@ function subscriberAreaCodeByParty(partyCode){
   return s ? formattedAreaCode(s.areaCode, s.areaName) : '—';
 }
 
+// Raw (unformatted) area master code for a subscriber — used to match
+// against the Area Code filter dropdown's option values.
+function rawAreaCodeOfParty(partyCode){
+  const s = state.subscribers.find(x=>x.partyCode===partyCode);
+  return s ? s.areaCode : null;
+}
+
 function formattedAreaCode(areaCode, areaName){
   if(!areaCode && !areaName) return '—';
   return `${areaBillCode(areaCode, areaName)} || ${areaName||'—'}`;
@@ -4321,7 +4529,8 @@ function formattedAreaCode(areaCode, areaName){
 
 const REPORTS = {
   'rpt-magazine-list': {
-    title:'Magazine List', hasDate:false,
+    title:'Magazine List', hasDate:false, hasArea:true,
+    areaNote:'Magazine master data isn\'t linked to an area, so this filter won\'t narrow results yet.',
     columns:[['code','Code'],['magazine','Magazine'],['type','Type'],['supplyStatus','Supply Status'],['commission','Commission']],
     getRows(){
       return state.masters.magazines.map(m=>({
@@ -4330,11 +4539,11 @@ const REPORTS = {
     }
   },
   'rpt-subscriberwise': {
-    title:'Subscriberwise Magazine List', hasDate:true, dateNote:'Filters by each subscriber\'s Start Date.',
+    title:'Subscriberwise Magazine List', hasDate:true, hasArea:true, dateNote:'Filters by each subscriber\'s Start Date.',
     columns:[['subscriber','Subscriber'],['areaCode','Area Code'],['magazine','Magazine'],['startDate','Start Date'],['status','Status']],
-    getRows(from,to){
+    getRows(from,to,areaCode){
       const rows=[];
-      state.subscribers.forEach(s=>{
+      state.subscribers.filter(s=> !areaCode || s.areaCode===areaCode).forEach(s=>{
         if(!within(s.startDate,from,to)) return;
         s.items.forEach(it=>rows.push({
           subscriber:`${s.partyName} (${s.partyCode})`, areaCode:formattedAreaCode(s.areaCode, s.areaName), magazine:it.magazineName,
@@ -4345,13 +4554,13 @@ const REPORTS = {
     }
   },
   'rpt-areawise-geo': {
-    title:"Areawise Today's Geo List", hasDate:true, dateDefaultToday:true,
+    title:"Areawise Today's Geo List", hasDate:true, hasArea:true, dateDefaultToday:true,
     dateNote:'Sums each subscriber\'s scheduled copies across every day in the range (defaults to today).',
     columns:[['area','Area'],['areaCode','Area Code'],['route','Sub Area'],['subscriber','Subscriber'],['copies','Copies']],
-    getRows(from,to){
+    getRows(from,to,areaCode){
       const dates = dateRangeArray(from||todayISO(), to||from||todayISO());
       const rows=[];
-      state.subscribers.filter(s=>s.activeState==='YES').forEach(s=>{
+      state.subscribers.filter(s=>s.activeState==='YES').filter(s=> !areaCode || s.areaCode===areaCode).forEach(s=>{
         let copies=0;
         dates.forEach(dt=>{
           if(isDateOnHold(s, dt)) return;
@@ -4364,10 +4573,10 @@ const REPORTS = {
     }
   },
   'rpt-areawise-line': {
-    title:'Areawise Subscriber Line List', hasDate:true, dateNote:'Filters by each subscriber\'s Entry Date.',
+    title:'Areawise Subscriber Line List', hasDate:true, hasArea:true, dateNote:'Filters by each subscriber\'s Entry Date.',
     columns:[['area','Area'],['areaCode','Area Code'],['lineNo','Line No'],['subscriber','Subscriber']],
-    getRows(from,to){
-      const filtered = state.subscribers.filter(s=>within(s.entryDate,from,to));
+    getRows(from,to,areaCode){
+      const filtered = state.subscribers.filter(s=>within(s.entryDate,from,to)).filter(s=> !areaCode || s.areaCode===areaCode);
       const sorted = [...filtered].sort((a,b)=> a.areaName.localeCompare(b.areaName) || a.partyCode.localeCompare(b.partyCode));
       const counters = {};
       return sorted.map(s=>{
@@ -4377,11 +4586,11 @@ const REPORTS = {
     }
   },
   'rpt-areawise-detailed': {
-    title:'Areawise Subscriber Detailed List', hasDate:true, dateNote:'Filters by each subscriber\'s Entry Date.',
+    title:'Areawise Subscriber Detailed List', hasDate:true, hasArea:true, dateNote:'Filters by each subscriber\'s Entry Date.',
     columns:[['area','Area'],['areaCode','Area Code'],['subscriber','Subscriber'],['magazine','Magazine'],['address','Address']],
-    getRows(from,to){
+    getRows(from,to,areaCode){
       const rows=[];
-      state.subscribers.forEach(s=>{
+      state.subscribers.filter(s=> !areaCode || s.areaCode===areaCode).forEach(s=>{
         if(!within(s.entryDate,from,to)) return;
         const address = [s.address1,s.address2].filter(Boolean).join(', ');
         s.items.forEach(it=>rows.push({ area:s.areaName, areaCode:formattedAreaCode(s.areaCode, s.areaName), subscriber:s.partyName, magazine:it.magazineName, address }));
@@ -4390,39 +4599,43 @@ const REPORTS = {
     }
   },
   'rpt-areawise-details': {
-    title:'Areawise Subscriber Details', hasDate:true, dateNote:'Filters by each subscriber\'s Entry Date.',
+    title:'Areawise Subscriber Details', hasDate:true, hasArea:true, dateNote:'Filters by each subscriber\'s Entry Date.',
     columns:[['area','Area'],['areaCode','Area Code'],['subscriber','Subscriber'],['contact','Contact'],['status','Status']],
-    getRows(from,to){
-      return state.subscribers.filter(s=>within(s.entryDate,from,to)).map(s=>({
+    getRows(from,to,areaCode){
+      return state.subscribers.filter(s=>within(s.entryDate,from,to)).filter(s=> !areaCode || s.areaCode===areaCode).map(s=>({
         area:s.areaName, areaCode:formattedAreaCode(s.areaCode, s.areaName), subscriber:s.partyName, contact:s.phone||'—', status:s.activeState
       }));
     }
   },
+
   'rpt-individual-list': {
-    title:'Individual List', hasDate:true, dateNote:'Filters by Sales Posting date.',
+    title:'Individual List', hasDate:true, hasArea:true, dateNote:'Filters by Sales Posting date.',
     columns:[['subscriber','Subscriber'],['areaCode','Area Code'],['magazine','Magazine'],['qty','Qty'],['amount','Amount']],
-    getRows(from,to){
+    getRows(from,to,areaCode){
       const rows=[];
       state.sales.forEach(rec=>{
         if(!within(rec.date,from,to)) return;
-        rec.items.forEach(it=>rows.push({
-          subscriber:`${it.customerName} (${it.customerCode})`, areaCode:subscriberAreaCodeByParty(it.customerCode), magazine:it.magazineName,
-          qty:it.qty, amount:fmtMoney(it.amount)
-        }));
+        rec.items.forEach(it=>{
+          if(areaCode && rawAreaCodeOfParty(it.customerCode)!==areaCode) return;
+          rows.push({
+            subscriber:`${it.customerName} (${it.customerCode})`, areaCode:subscriberAreaCodeByParty(it.customerCode), magazine:it.magazineName,
+            qty:it.qty, amount:fmtMoney(it.amount)
+          });
+        });
       });
       return rows;
     }
   },
   'rpt-paymentwise': {
-    title:'Payment Wise Subscriber List', hasDate:true, dateNote:'Filters which bills are counted, by Bill Date.',
+    title:'Payment Wise Subscriber List', hasDate:true, hasArea:true, dateNote:'Filters which bills are counted, by Bill Date.',
     columns:[['subscriber','Subscriber'],['areaCode','Area Code'],['amountDue','Amount Due'],['lastPaid','Last Paid'],['status','Status']],
-    getRows(from,to){
+    getRows(from,to,areaCode){
       const byParty = {};
-      state.bills.filter(b=>within(b.date,from,to)).forEach(b=>{
+      state.bills.filter(b=>within(b.date,from,to)).filter(b=> !areaCode || rawAreaCodeOfParty(b.partyCode)===areaCode).forEach(b=>{
         if(!byParty[b.partyCode]) byParty[b.partyCode] = { partyName:b.partyName, due:0, lastPaid:null };
         const p = byParty[b.partyCode];
         if(b.status==='Paid'){ if(!p.lastPaid || b.date>p.lastPaid) p.lastPaid=b.date; }
-        else { p.due += Number(b.amount||0); }
+        else { p.due += billAmount(b); }
       });
       return Object.entries(byParty).map(([code,p])=>({
         subscriber:`${p.partyName} (${code})`, areaCode:subscriberAreaCodeByParty(code), amountDue:fmtMoney(p.due),
@@ -4431,7 +4644,8 @@ const REPORTS = {
     }
   },
   'rpt-supplywise': {
-    title:'Supply Wise List', hasDate:true, dateNote:'Filters by Purchase Posting date.',
+    title:'Supply Wise List', hasDate:true, hasArea:true, dateNote:'Filters by Purchase Posting date.',
+    areaNote:'Purchase Posting isn\'t linked to an area, so this filter won\'t narrow results yet.',
     dataCaveat:'Purchase Posting doesn\'t capture which supplier a batch came from yet, so quantities below are combined across all suppliers.',
     columns:[['supplier','Supplier'],['magazine','Magazine'],['suppliedQty','Supplied Qty']],
     getRows(from,to){
@@ -4446,23 +4660,25 @@ const REPORTS = {
     }
   },
   'rpt-subscriber-payment': {
-    title:'Subscriber Payment Details', hasDate:true, dateNote:'Filters by the date each bill was paid.',
+    title:'Subscriber Payment Details', hasDate:true, hasArea:true, dateNote:'Filters by the date each bill was paid.',
     columns:[['subscriber','Subscriber'],['areaCode','Area Code'],['date','Date'],['amount','Amount'],['mode','Mode']],
-    getRows(from,to){
-      return state.bills.filter(b=>b.status==='Paid' && within(b.date,from,to)).map(b=>({
+    getRows(from,to,areaCode){
+      return state.bills.filter(b=>b.status==='Paid' && within(b.date,from,to)).filter(b=> !areaCode || rawAreaCodeOfParty(b.partyCode)===areaCode).map(b=>({
         subscriber:`${b.partyName} (${b.partyCode})`, areaCode:subscriberAreaCodeByParty(b.partyCode), date:formatDateDisplay(b.date),
-        amount:fmtMoney(b.amount), mode:b.paymentMode
+        amount:fmtMoney(billAmount(b)), mode:b.paymentMode
       }));
     }
   },
   'rpt-complaint': {
-    title:'Complaint Details', hasDate:true, dateNote:'Filters by the date a complaint was logged.',
+    title:'Complaint Details', hasDate:true, hasArea:true, dateNote:'Filters by the date a complaint was logged.',
+    areaNote:'There\'s no Complaint Entry module yet, so this filter has nothing to narrow.',
     dataCaveat:'There\'s no Complaint Entry module yet, so nothing has been logged.',
     columns:[['date','Date'],['subscriber','Subscriber'],['areaCode','Area Code'],['issue','Issue'],['status','Status']],
     getRows(){ return []; }
   },
   'rpt-supplier-purchase': {
-    title:'Supplier Wise Purchase Details', hasDate:true, dateNote:'Filters by Purchase Posting date.',
+    title:'Supplier Wise Purchase Details', hasDate:true, hasArea:true, dateNote:'Filters by Purchase Posting date.',
+    areaNote:'Purchase Posting isn\'t linked to an area, so this filter won\'t narrow results yet.',
     dataCaveat:'Purchase Posting doesn\'t capture which supplier a batch came from yet, so quantities below are combined across all suppliers.',
     columns:[['supplier','Supplier'],['magazine','Magazine'],['qty','Qty'],['amount','Amount']],
     getRows(from,to){
@@ -4478,7 +4694,8 @@ const REPORTS = {
     }
   },
   'rpt-profit-loss': {
-    title:'Profit / Loss Statement', hasDate:true, dateNote:'Income is total Sales Posting + Counter Sales value; Expense is total Purchase Posting value, in this date range.',
+    title:'Profit / Loss Statement', hasDate:true, hasArea:true, dateNote:'Income is total Sales Posting + Counter Sales value; Expense is total Purchase Posting value, in this date range.',
+    areaNote:'This is a single aggregated total, not broken down by area, so this filter won\'t narrow results yet.',
     columns:[['period','Period'],['income','Income'],['expense','Expense'],['net','Net']],
     getRows(from,to){
       const salesIncome = state.sales.filter(s=>within(s.date,from,to)).reduce((a,s)=>a+Number(s.totalAmount||0),0);
@@ -4497,9 +4714,16 @@ function ensureReportUI(id){
     state.reportUI[id] = {
       search:'',
       dateFrom: def && def.dateDefaultToday ? todayISO() : '',
-      dateTo: def && def.dateDefaultToday ? todayISO() : ''
+      dateTo: def && def.dateDefaultToday ? todayISO() : '',
+      areaCode:''
     };
   }
+}
+
+function reportAreaOptionsHTML(selected){
+  return `<option value="" ${!selected?'selected':''}>-- All Areas --</option>` + state.masters.areas.map(a=>
+    `<option value="${esc(a.code)}" ${selected===a.code?'selected':''}>${esc(areaBillCode(a.code,a.name))} — ${esc(a.name)}</option>`
+  ).join('');
 }
 
 function renderReportModule(id){
@@ -4508,7 +4732,7 @@ function renderReportModule(id){
   if(!def){ content.innerHTML = '<div class="empty-note">Report not found.</div>'; return; }
   ensureReportUI(id);
   const ui = state.reportUI[id];
-  let rows = def.getRows(ui.dateFrom, ui.dateTo);
+  let rows = def.getRows(ui.dateFrom, ui.dateTo, ui.areaCode);
   if(ui.search && ui.search.trim()){
     const q = ui.search.trim().toLowerCase();
     rows = rows.filter(r=> def.columns.some(([key])=> String(r[key]??'').toLowerCase().includes(q)));
@@ -4516,7 +4740,7 @@ function renderReportModule(id){
 
   const theadCells = def.columns.map(([,label])=>`<th>${label}</th>`).join('');
   const bodyRows = rows.length ? rows.map(r=>`<tr>${def.columns.map(([key])=>`<td${key==='areaCode'?' style="font-family:var(--font-mono);"':''}>${esc(r[key]??'—')}</td>`).join('')}</tr>`).join('')
-    : `<tr><td colspan="${def.columns.length}"><div class="empty-note"><b>No records found</b>${def.dataCaveat ? def.dataCaveat : 'Try widening the date range or clearing the search.'}</div></td></tr>`;
+    : `<tr><td colspan="${def.columns.length}"><div class="empty-note"><b>No records found</b>${def.dataCaveat ? def.dataCaveat : 'Try widening the date range, clearing the area filter, or the search.'}</div></td></tr>`;
 
   content.innerHTML = `
     <div class="breadcrumb">Reports <b>›</b> ${def.title}</div>
@@ -4530,8 +4754,16 @@ function renderReportModule(id){
           <label style="font-size:11.5px; color:var(--text-muted);">To</label>
           <input type="date" value="${esc(ui.dateTo)}" ${def.hasDate?'':'disabled'} style="padding:6px 8px; border:1px solid var(--rule); border-radius:4px; ${def.hasDate?'':'opacity:.5;'}" onchange="updateReportDate('${id}','dateTo',this.value)">
         </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label style="font-size:11.5px; color:var(--text-muted);">Area Code</label>
+          <select ${def.hasArea?'':'disabled'} style="padding:6px 8px; border:1px solid var(--rule); border-radius:4px; font-family:inherit; ${def.hasArea?'':'opacity:.5;'}" onchange="updateReportArea('${id}',this.value)">
+            ${reportAreaOptionsHTML(ui.areaCode)}
+          </select>
+        </div>
         <span style="font-size:11.5px;color:var(--text-muted);">${rows.length} record${rows.length===1?'':'s'}</span>
+        <button class="btn btn-ghost" style="padding:8px 14px; font-size:12.5px;" onclick="exportReportPDF('${id}')">${iconSvg('backup')} Export as PDF</button>
       </div>
+      ${!def.hasArea ? `<p style="font-size:11.5px; color:var(--text-muted); margin:4px 0 0;">Area Code filter isn't applicable to this report — it has no area field.</p>` : (def.areaNote ? `<p style="font-size:11.5px; color:var(--text-muted); margin:4px 0 0;">${def.areaNote}</p>` : '')}
       ${!def.hasDate ? `<p style="font-size:11.5px; color:var(--text-muted); margin:4px 0 0;">Date filter isn't applicable to this report — it has no date field.</p>` : (def.dateNote ? `<p style="font-size:11.5px; color:var(--text-muted); margin:4px 0 0;">${def.dateNote}</p>` : '')}
       <table class="skeleton-table" style="margin-top:12px;">
         <thead><tr>${theadCells}</tr></thead>
@@ -4543,6 +4775,75 @@ function renderReportModule(id){
 
 function updateReportSearch(id,value){ ensureReportUI(id); state.reportUI[id].search=value; renderReportModule(id); }
 function updateReportDate(id,field,value){ ensureReportUI(id); state.reportUI[id][field]=value; renderReportModule(id); }
+function updateReportArea(id,value){ ensureReportUI(id); state.reportUI[id].areaCode=value; renderReportModule(id); }
+
+// Builds a printable HTML document for a report — opened in a new tab so
+// the user can pick "Save as PDF" from the browser's print destinations.
+function buildReportPrintHTML(def, rows, ui){
+  const c = state.company;
+  const theadCells = def.columns.map(([,label])=>`<th>${esc(label)}</th>`).join('');
+  const bodyRows = rows.length
+    ? rows.map(r=>`<tr>${def.columns.map(([key])=>`<td>${esc(r[key]??'—')}</td>`).join('')}</tr>`).join('')
+    : `<tr><td colspan="${def.columns.length}" style="text-align:center; padding:16px;">No records found.</td></tr>`;
+  const rangeLabel = def.hasDate && (ui.dateFrom||ui.dateTo)
+    ? `From ${ui.dateFrom?formatDateDisplay(ui.dateFrom):'…'} To ${ui.dateTo?formatDateDisplay(ui.dateTo):'…'}`
+    : 'All Records';
+  const areaRec = def.hasArea && ui.areaCode ? state.masters.areas.find(a=>a.code===ui.areaCode) : null;
+  const areaLabel = areaRec ? ` &nbsp;|&nbsp; Area: ${esc(areaBillCode(areaRec.code,areaRec.name))} — ${esc(areaRec.name)}` : '';
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(def.title)}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; color:#1B2333; max-width:1000px; margin:28px auto; padding:0 16px; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    .stmt-head{text-align:center; border-bottom:2px solid #0B2148; padding-bottom:14px; margin-bottom:14px;}
+    .stmt-head h1{font-size:19px; margin:0 0 4px; letter-spacing:.01em; color:#0B2148; font-weight:800;}
+    .stmt-head p{margin:1px 0; font-size:12px; color:#647087;}
+    .stmt-title{font-size:13.5px; font-weight:700; margin:14px 0 2px; color:#0B2148;}
+    .stmt-sub{font-size:12px; color:#647087; margin:0 0 14px;}
+    table{width:100%; border-collapse:collapse; margin-bottom:8px; border:1px solid #DFE5EF; border-radius:8px; overflow:hidden;}
+    th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; padding:10px 8px; background:#0B2148; color:#fff; font-weight:600;}
+    td{font-size:12.5px; padding:8px; vertical-align:top; border-bottom:1px solid #E7ECF4;}
+    tfoot td{font-weight:800; font-size:13px; color:#0B2148; border-top:2px solid #0B2148; border-bottom:none;}
+    @media print{ .no-print{display:none;} body{margin:10px auto;} }
+  </style>
+  </head><body>
+    <div class="stmt-head">
+      <h1>${esc(c.name||'The Distribution Ledger')}</h1>
+      <p>${esc(c.address||'')}</p>
+      <p>${esc(c.phone||'')}${c.email?' · '+esc(c.email):''}</p>
+    </div>
+    <p class="stmt-title">${esc(def.title)}</p>
+    <p class="stmt-sub">${rangeLabel}${areaLabel} &nbsp;|&nbsp; ${rows.length} record${rows.length===1?'':'s'}</p>
+    <table>
+      <thead><tr>${theadCells}</tr></thead>
+      <tbody>${bodyRows}</tbody>
+    </table>
+    <div class="no-print" style="text-align:center; margin-top:20px;">
+      <button onclick="window.print()" style="padding:9px 22px; cursor:pointer; background:#0B2148; color:#fff; border:none; border-radius:5px; font-family:'Inter',sans-serif; font-weight:600; font-size:13px;">🖨 Print / Save as PDF</button>
+    </div>
+  </body></html>`;
+}
+
+// Opens the current report (respecting its active search + date filters)
+// as a printable document; choosing "Save as PDF" in the print dialog
+// is how this offline app produces a PDF export, with no server needed.
+function exportReportPDF(id){
+  const def = REPORTS[id];
+  if(!def) return;
+  ensureReportUI(id);
+  const ui = state.reportUI[id];
+  let rows = def.getRows(ui.dateFrom, ui.dateTo, ui.areaCode);
+  if(ui.search && ui.search.trim()){
+    const q = ui.search.trim().toLowerCase();
+    rows = rows.filter(r=> def.columns.some(([key])=> String(r[key]??'').toLowerCase().includes(q)));
+  }
+  const w = window.open('', '_blank');
+  if(!w){ showToast('Please allow pop-ups to export this report as PDF.', 'error'); return; }
+  w.document.write(buildReportPrintHTML(def, rows, ui));
+  w.document.close();
+}
 
 /* ============================================================
    UTILITIES — SEARCH
@@ -5166,7 +5467,7 @@ function partiesWithUnpaidBills(){
   const byParty = {};
   state.bills.filter(b=>b.status==='Unpaid').forEach(b=>{
     if(!byParty[b.partyCode]) byParty[b.partyCode] = { partyCode:b.partyCode, partyName:b.partyName, total:0, count:0 };
-    byParty[b.partyCode].total += Number(b.amount||0);
+    byParty[b.partyCode].total += billAmount(b);
     byParty[b.partyCode].count += 1;
   });
   return Object.values(byParty).sort((a,b)=>a.partyCode.localeCompare(b.partyCode));
@@ -5196,12 +5497,12 @@ function billCollectionEntryHTML(){
       <td class="coll-check"><input type="checkbox" ${ui.selectedBills.includes(b.billNo)?'checked':''} onchange="toggleCollBill('${b.billNo}')"></td>
       <td style="font-family:var(--font-mono);">${esc(b.billNo)}</td>
       <td>${formatDateDisplay(b.periodStart)} – ${formatDateDisplay(b.periodEnd)}</td>
-      <td style="text-align:right;">₹${Number(b.amount).toFixed(2)}</td>
+      <td style="text-align:right;">₹${billAmount(b).toFixed(2)}</td>
     </tr>
   `).join('');
   const selectedTotal = state.bills
     .filter(b=>ui.selectedBills.includes(b.billNo))
-    .reduce((a,b)=>a+Number(b.amount||0),0);
+    .reduce((a,b)=>a+billAmount(b),0);
 
   return `
     <div class="breadcrumb">Bill <b>›</b> Bill Collection</div>
@@ -5217,7 +5518,7 @@ function billCollectionEntryHTML(){
       </div>
       ${ui.partyCode ? (unpaidBills.length ? `
         <table class="skeleton-table coll-bills-table">
-          <thead><tr><th class="coll-check"></th><th>Bill No</th><th>Period</th><th style="text-align:right;">Amount</th></tr></thead>
+          <thead><tr><th class="coll-check"></th><th>Bill No</th><th>Period</th><th style="text-align:right;">BAL. AMT</th></tr></thead>
           <tbody>${billRows}</tbody>
         </table>
         <div class="coll-total-bar">
@@ -5250,7 +5551,7 @@ function collectPayment(){
   const ui = state.collUI;
   if(ui.selectedBills.length===0) return;
   const selected = state.bills.filter(b=>ui.selectedBills.includes(b.billNo));
-  const amount = selected.reduce((a,b)=>a+Number(b.amount||0),0);
+  const amount = selected.reduce((a,b)=>a+billAmount(b),0);
   const party = selected[0];
   const receiptNo = 'RCT-'+(9001+state.receipts.length);
   state.receipts.push({
